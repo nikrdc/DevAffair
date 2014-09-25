@@ -7,9 +7,14 @@ from flask.ext.migrate import Migrate, MigrateCommand
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask.ext.login import UserMixin, LoginManager, current_user, \
                             login_required
-from flask.ext.wtf import Field, Form
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import Length, Required, Email, ValidationError
+from flask.ext.wtf import Form
+from wtforms import Field, StringField, PasswordField, BooleanField, \
+                    SubmitField
+from wtforms.widgets import TextInput
+from wtforms.validators import Length, Required, Email, ValidationError, \
+                               EqualTo
+from flask.ext.mail import Mail, Message
+from threading import Thread
 
 
 
@@ -19,13 +24,21 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or 'substitute key'
 app.config['SQLALCHEMY_DATABASE_URI'] = \
     'sqlite:///' + os.path.join(basedir, 'data.sqlite')
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USE_SSL'] = True
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+
 manager = Manager(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+mail = Mail(app)
 
 def make_shell_context():
     return dict(app=app, db=db, School=School, Student=Student, 
@@ -243,6 +256,24 @@ def check_school(school):
 
 
 
+# Email
+
+def send_async_email(app, msg):
+    with app.app_context():
+        mail.send(msg)
+
+
+def send_email(to, subject, template, **kwargs):
+    msg = Message('DevAffair: ' + subject, sender = 'DevAffair', 
+                  recipients = [to])
+    msg.body = render_template(template + '.txt', **kwargs)
+    msg.html = render_template(template + '.html', **kwargs)
+    thr = Thread(target = send_async_email, args = [app, msg])
+    thr.start()
+    return thr
+
+
+
 # Routes
 
 @app.route('/')
@@ -375,7 +406,7 @@ def edit(school_shortname, student_id, project_id):
     project = finder(project_id, 'project')
     if student.school is school and project.student is student:
         check_school(school)
-        if current_user = student:
+        if current_user == student:
             form = ProjectForm(obj=project)
             if form.validate_on_submit():
                 project.name = form.name.data
@@ -399,8 +430,8 @@ def new():
         project = Project(name=form.name.data,
                           description=form.description.data,
                           student=current_user,
-                          school=current_user.school
-                          tags=[finder(tag, 'tag') for tag in form.tags.data])
+                          school=current_user.school)
+                          #tags=[finder(tag, 'tag') for tag in form.tags.data])
         db.session.add(project)
         db.session.commit()
         return redirect(url_for('project', project_id=project.id))
