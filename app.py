@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, redirect, session, url_for, abort, \
-                  flash, request
+                  flash, request, current_app
 from flask.ext.script import Manager, Shell
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.migrate import Migrate, MigrateCommand
@@ -11,10 +11,10 @@ from flask.ext.wtf import Form
 from wtforms import Field, StringField, PasswordField, BooleanField, \
                     SubmitField
 from wtforms.widgets import TextInput
-from wtforms.validators import Length, Required, Email, ValidationError, \
-                               EqualTo
+from wtforms.validators import Length, Required, Email, ValidationError
 from flask.ext.mail import Mail, Message
 from threading import Thread
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
 
 
@@ -89,7 +89,7 @@ class Student(UserMixin, db.Model):
     confirmed = db.Column(db.Boolean, default=False)
 
     school_id = db.Column(db.Integer, db.ForeignKey('schools.id'))
-    projects = db.relationship('Project', backref='group', lazy='dynamic')
+    projects = db.relationship('Project', backref='student', lazy='dynamic')
 
     password_hash = db.Column(db.String(128))
 
@@ -106,6 +106,23 @@ class Student(UserMixin, db.Model):
 
     def __repr__(self):
         return '<Student %r>' % self.name
+
+    def generate_confirmation_token(self, expiration=3600):
+        s = Serializer(current_app.config['SECRET_KEY'], expiration)
+        return s.dumps({'confirm': self.id})
+
+    def confirm(self, token):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except:
+            return False
+        if data.get('confirm') != self.id:
+            return False
+        else:
+            self.confirmed = True
+            db.session.add(self)
+            return True
 
 
 class Project(db.Model):
@@ -207,10 +224,7 @@ class StudentForm(Form):
 class PasswordForm(Form):
     current_password = PasswordField('Current password', 
                                      validators=[Required()])
-    new_password = PasswordField('New password', validators=[Required(), 
-                    EqualTo('new_password2', message='Passwords must match')])
-    new_password2 = PasswordField('Confirm new password', 
-                                  validators=[Required()])
+    new_password = PasswordField('New password', validators=[Required()])
     submit = SubmitField('Update password')
 
 
@@ -243,12 +257,25 @@ def finder(key, type):
 
 
 def check_confirmed():
-    if not current_user.confirmed:
-        return render_template('unconfirmed.html')
+    if current_user.confirmed:
+        flash('You have already confirmed your account!')
+        return redirect(url_for('school', 
+                                school_shortname=student.school.shortname))
+
+
+def check_authenticated(source):
+    if current_user.is_authenticated():
+        if source == 'login':
+            flash('You have already logged in!')
+        if source == 'signup':
+            flash('You have already signed up and logged in!')
+        else:
+            abort(500);
+        return redirect(url_for('school', 
+                                school_shortname=student.school.shortname))
 
 
 def check_school(school):
-    check_confirmed()
     if current_user.school is school:
         pass
     else:
@@ -276,6 +303,13 @@ def send_email(to, subject, template, **kwargs):
 
 # Routes
 
+@app.before_app_request
+def before_request():
+    if current_user.is_authenticated() and not current_user.confirmed \
+    and request.endpoint not in ['unconfirmed', 'confirm', 'reconfirm']:
+        return redirect(url_for('unconfirmed'))
+
+
 @app.route('/')
 def index():
     schools = School.query.all()
@@ -284,6 +318,7 @@ def index():
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
+    check_authenticated('signup')
     form = SignupForm()
     if form.validate_on_submit():
         school = \
@@ -296,16 +331,50 @@ def signup():
             db.session.add(student)
             db.session.commit()
             login_user(student)
-            return redirect(url_for('school', 
-                                    school_shortname=student.school.shortname))
+            token = student.generate_confirmation_token()
+            send_email(student.email, 'Confirm your account', 'mail/confirm', 
+                       student=student, token=token)
+            flash('A confirmation email has been sent to you by email.')
+            return redirect(url_for('login'))
         else:
             return render_template('signup.html', form=form, found=False)
     else:
         return render_template('signup.html', form=form, found=True)
 
 
+@app.route('/unconfirmed')
+def unconfirmed():
+    check_confirmed()
+    return render_template('unconfirmed.html')
+
+
+@app.route('/confirm')
+@login_required
+def reconfirm():
+    check_confirmed()
+    token = current_user.generate_confirmation_token()
+    send_email(student.email, 'Confirm your account', 'mail/confirm', 
+               student=student, token=token)
+    flash('A new confirmation email has been sent to you by email.')
+    return redirect(url_for('index'))
+
+
+@auth.route('/confirm/<token>')
+@login_required
+def confirm(token):
+    check_confirmed()
+    if current_user.confirm(token):
+        flash('You have confirmed your account.')
+        return redirect(url_for('school', 
+                                school_shortname=student.school.shortname))
+    else:
+        flash('The confirmation link is invalid or has expired.')
+        return redirect(url_for('unconfirmed'))
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    check_authenticated('login')
     form = LoginForm()
     if form.validate_on_submit():
         student = Student.query.filter_by(email=form.email.data).first()
@@ -329,7 +398,6 @@ def logout():
 @app.route('/settings')
 @login_required
 def settings():
-    check_confirmed()
     profile_form = StudentForm(obj=student)
     password_form = PasswordForm()
     if profile_form.validate_on_submit():
@@ -354,7 +422,6 @@ def settings():
 
 @app.route('/tags')
 def tags():
-    check_confirmed()
     tags = Tag.query.all()
     render_template('tags.html', tags=tags)
 
@@ -363,7 +430,6 @@ def tags():
 def school(school_shortname):
     school = finder(school_shortname, 'school')
     if current_user.is_authenticated():
-        check_confirmed()
         if current_user.school is school:
             return render_template('school.html', school=school)
         else:
@@ -424,14 +490,13 @@ def edit(school_shortname, student_id, project_id):
 @app.route('/new', methods=['GET', 'POST'])
 @login_required
 def new():
-    check_confirmed()
     form = ProjectForm()
     if form.validate_on_submit():
         project = Project(name=form.name.data,
                           description=form.description.data,
                           student=current_user,
-                          school=current_user.school)
-                          #tags=[finder(tag, 'tag') for tag in form.tags.data])
+                          school=current_user.school,
+                          tags=[finder(tag, 'tag') for tag in form.tags.data])
         db.session.add(project)
         db.session.commit()
         return redirect(url_for('project', project_id=project.id))
