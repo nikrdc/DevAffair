@@ -119,10 +119,9 @@ class Student(UserMixin, db.Model):
             return False
         if data.get('confirm') != self.id:
             return False
-        else:
-            self.confirmed = True
-            db.session.add(self)
-            return True
+        self.confirmed = True
+        db.session.add(self)
+        return True
 
 
 class Project(db.Model):
@@ -164,8 +163,7 @@ class TagListField(Field):
     def _value(self):
         if self.data:
             return u' '.join(self.data)
-        else:
-            return u''
+        return u''
 
     def process_formatdata(self, valuelist):
         if valuelist:
@@ -252,8 +250,7 @@ def finder(key, type):
         return Project.query.get(key) or abort(404)
     if type == 'tag':
         return Tag.query.filter_by(name=key).first_or_404()
-    else:
-        abort(404)
+    abort(404)
 
 
 def check_confirmed():
@@ -263,22 +260,8 @@ def check_confirmed():
                                 school_shortname=student.school.shortname))
 
 
-def check_authenticated(source):
-    if current_user.is_authenticated():
-        if source == 'login':
-            flash('You have already logged in!')
-        if source == 'signup':
-            flash('You have already signed up and logged in!')
-        else:
-            abort(500);
-        return redirect(url_for('school', 
-                                school_shortname=student.school.shortname))
-
-
 def check_school(school):
-    if current_user.school is school:
-        pass
-    else:
+    if current_user.school is not school:
         return render_template('incorrect_school.html')
 
 
@@ -303,10 +286,10 @@ def send_email(to, subject, template, **kwargs):
 
 # Routes
 
-@app.before_app_request
+@app.before_request
 def before_request():
     if current_user.is_authenticated() and not current_user.confirmed \
-    and request.endpoint not in ['unconfirmed', 'confirm', 'reconfirm']:
+    and request.endpoint not in ['unconfirmed', 'reconfirm', 'confirm']:
         return redirect(url_for('unconfirmed'))
 
 
@@ -318,7 +301,10 @@ def index():
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    check_authenticated('signup')
+    if current_user.is_authenticated():
+        flash('You have already signed up and logged in!')
+        return redirect(url_for('school', 
+                                school_shortname=student.school.shortname))
     form = SignupForm()
     if form.validate_on_submit():
         school = \
@@ -335,11 +321,9 @@ def signup():
             send_email(student.email, 'Confirm your account', 'mail/confirm', 
                        student=student, token=token)
             flash('A confirmation email has been sent to you by email.')
-            return redirect(url_for('login'))
-        else:
-            return render_template('signup.html', form=form, found=False)
-    else:
-        return render_template('signup.html', form=form, found=True)
+            return redirect(url_for('index'))
+        return render_template('signup.html', form=form, found=False)
+    return render_template('signup.html', form=form, found=True)
 
 
 @app.route('/unconfirmed')
@@ -359,7 +343,7 @@ def reconfirm():
     return redirect(url_for('index'))
 
 
-@auth.route('/confirm/<token>')
+@app.route('/confirm/<token>')
 @login_required
 def confirm(token):
     check_confirmed()
@@ -367,14 +351,16 @@ def confirm(token):
         flash('You have confirmed your account.')
         return redirect(url_for('school', 
                                 school_shortname=student.school.shortname))
-    else:
-        flash('The confirmation link is invalid or has expired.')
-        return redirect(url_for('unconfirmed'))
+    flash('The confirmation link is invalid or has expired.')
+    return redirect(url_for('unconfirmed'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    check_authenticated('login')
+    if current_user.is_authenticated():
+        flash('You have already logged in!')
+        return redirect(url_for('school', 
+                                school_shortname=student.school.shortname))
     form = LoginForm()
     if form.validate_on_submit():
         student = Student.query.filter_by(email=form.email.data).first()
@@ -382,10 +368,8 @@ def login():
             login_user(student, form.remember_me.data)
             return redirect(request.args.get('next') or \
                 url_for('school', school_shortname=student.school.shortname))
-        else:
-            flash('Invalid username or password.')
-    else:
-        return render_template('login.html', form=form)
+        flash('Invalid username or password.')
+    return render_template('login.html', form=form)
 
 
 @app.route('/logout')
@@ -414,8 +398,7 @@ def settings():
             db.session.add(current_user)
             db.session.commit()
             flash('Password updated successfully.')
-        else:
-            flash('Invalid password.')
+        flash('Invalid password.')
     return render_template('settings.html', profile_form=profile_form, 
                            password_form=password_form)
 
@@ -429,49 +412,43 @@ def tags():
 @app.route('/<school_shortname>')
 def school(school_shortname):
     school = finder(school_shortname, 'school')
-    if current_user.is_authenticated():
-        if current_user.school is school:
-            return render_template('school.html', school=school)
-        else:
-            return render_template('public_school.html')
-    else:
-        return render_template('public_school.html')
+    if current_user.is_authenticated() and current_user.school is school:
+        return render_template('school.html', school=school)
+    return render_template('public_school.html')
 
 
 @app.route('/<school_shortname>/<student_id>')
 @login_required
 def student(school_shortname, student_id):
+    check_school(school)
     school = finder(school_shortname, 'school')
     student =  finder(student_id, 'student')
     if student.school is school:
-        check_school(school)
         return render_template('student.html', student=student)
-    else:
-        abort(404)
+    abort(404)
 
 
 @app.route('/<school_shortname>/<student_id>/<project_id>')
 @login_required
 def project(school_shortname, student_id, project_id):
+    check_school(school)
     school = finder(school_shortname, 'school')
     student =  finder(student_id, 'student')
     project = finder(project_id, 'project')
     if student.school is school and project.student is student:
-        check_school(school)
         return render_template('project.html', project=project)
-    else:
-        abort(404)
+    abort(404)
 
 
 @app.route('/<school_shortname>/<student_id>/<project_id>/edit', 
            methods=['GET', 'POST'])
 @login_required
 def edit(school_shortname, student_id, project_id):
+    check_school(school)
     school = finder(school_shortname, 'school')
     student =  finder(student_id, 'student')
     project = finder(project_id, 'project')
     if student.school is school and project.student is student:
-        check_school(school)
         if current_user == student:
             form = ProjectForm(obj=project)
             if form.validate_on_submit():
@@ -482,9 +459,8 @@ def edit(school_shortname, student_id, project_id):
                 db.session.commit()
                 flash('Project updated successfully.')
             return render_template('edit.html', form=form)
-        else: redirect(url_for('project', project_id=project.id))
-    else:
-        abort(404)
+        redirect(url_for('project', project_id=project.id))
+    abort(404)
 
 
 @app.route('/new', methods=['GET', 'POST'])
@@ -500,8 +476,7 @@ def new():
         db.session.add(project)
         db.session.commit()
         return redirect(url_for('project', project_id=project.id))
-    else:
-        return render_template('new.html', form=form)
+    return render_template('new.html', form=form)
 
 
 
