@@ -123,6 +123,22 @@ class Student(UserMixin, db.Model):
         db.session.add(self)
         return True
 
+    def generate_reset_token(self, expiration=3600):
+        s = Serializer(current_app.config['SECRET_KEY'], expiration)
+        return s.dumps({'reset': self.id})
+
+    def reset_password(self, token, new_password):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except:
+            return False
+        if data.get('reset') != self.id:
+            return False
+        self.password = new_password
+        db.session.add(self)
+        return True
+
 
 class Project(db.Model):
     __tablename__ = 'projects'
@@ -176,25 +192,25 @@ class TagListField(Field):
 
 class LoginForm(Form):
     email = StringField('Email', 
-                validators=[Required(message='An email address is required.'),
-                            Length(1, 64), 
-                            Email(message='This email address is invalid.')])
+            validators=[Required(message='Your email address is required.'),
+                        Length(1, 64), 
+                        Email(message='This email address is invalid.')])
     password = PasswordField('Password')
-    remember_me = BooleanField('Keep me logged in')
+    remember_me = BooleanField('Keep me logged in') 
     submit = SubmitField('Log in')
 
 
 class SignupForm(Form):
     name = StringField('Name', 
-                        validators=[Required(message='A name is required.')])
+                    validators=[Required(message='Your name is required.')])
     email = StringField('Email', 
-                validators=[Required(message='An email address is required.'),
-                            Length(1, 64), 
-                            Email(message='This email address is invalid.')])
+            validators=[Required(message='Your email address is required.'),
+                        Length(1, 64), 
+                        Email(message='This email address is invalid.')])
 
     def validate_email(self, field):
         if Student.query.filter_by(email=field.data).first():
-            raise ValidationError('This email is already in use.')
+            raise ValidationError('This email address is already in use.')
 
     password = PasswordField('Password')
     submit = SubmitField('Sign up')
@@ -206,13 +222,13 @@ class ProjectForm(Form):
     description = StringField('Description', 
                 validators=[Required(message='A description is required.')])
     tags = TagListField('Tags')
-    submit = SubmitField('Create')
+    create = SubmitField('Create')
     update = SubmitField('Update')
 
 
 class StudentForm(Form):
     name = StringField('Name', 
-                        validators=[Required(message='A name is required.')])
+                    validators=[Required(message='Your name is required.')])
     website = StringField('Website')
     description = StringField('Description')
     tags = TagListField('Tags')
@@ -221,9 +237,49 @@ class StudentForm(Form):
 
 class PasswordForm(Form):
     current_password = PasswordField('Current password', 
-                                     validators=[Required()])
-    new_password = PasswordField('New password', validators=[Required()])
+        validators=[Required(message='Your current password is required.')])
+
+    def validate_current_password(self, field):
+        if not current_user.verify_password(field.data):
+            raise ValidationError('Incorrect password')
+
+    new_password = PasswordField('New password', 
+            validators=[Required(message='Your new password is required.')])
     submit = SubmitField('Update password')
+
+
+class DeleteForm(Form):
+    password = PasswordField('Password', 
+                validators=[Required(message='Your password is required.')])
+
+    def validate_password(self, field):
+        if not current_user.verify_password(field.data):
+            raise ValidationError('Incorrect password')
+
+    submit = SubmitField('Delete account')
+
+
+class RequestResetForm(Form):
+    email = StringField('Email', 
+            validators=[Required(message='Your email address is required.'),
+                        Length(1, 64), 
+                        Email(message='This email address is invalid.')])
+
+    def validate_email(self, field):
+        if Student.query.filter_by(email=field.data).first() is None:
+            raise ValidationError('This email address is unknown.')
+
+    submit = SubmitField('Submit request')
+
+
+class ResetForm(Form):
+    email = StringField('Email', 
+                validators=[Required(message='Your email address is required.'),
+                            Length(1, 64), 
+                            Email(message='This email address is invalid.')])
+    new_password = PasswordField('New password', 
+            validators=[Required(message='Your new password is required.')])
+    submit = SubmitField('Reset password')
 
 
 
@@ -348,11 +404,37 @@ def reconfirm():
 def confirm(token):
     check_confirmed()
     if current_user.confirm(token):
-        flash('You have confirmed your account.')
+        flash('Account confirmed successfully')
         return redirect(url_for('school', 
                                 school_shortname=student.school.shortname))
     flash('The confirmation link is invalid or has expired.')
     return redirect(url_for('unconfirmed'))
+
+
+@app.route('/reset', methods=['GET', 'POST'])
+def request_reset():
+    form = RequestResetForm()
+    if form.validate_on_submit():
+        student = Student.query.filter_by(email=form.email.data).first()
+        token = student.generate_reset_token()
+        send_email(student.email, 'Reset your password', 'mail/reset',
+                   student=student, token=token, next=request.args.get('next'))
+        flash('An email with instructions to reset your password has been \
+              sent to you.')
+        return redirect(url_for('index'))
+    return render_template('request_reset.html', form=form)
+
+
+@app.route('/reset/<token>', methods=['GET', 'POST'])
+def reset(token):
+    form = ResetForm()
+    if form.validate_on_submit():
+        student = Student.query.filter_by(email=form.email.data).first()
+        if student.reset_password(token, form.new_password.data):
+            flash('Password updated successfully')
+            return redirect(url_for('login'))
+        flash('The password reset link is invalid or has expired.')
+    return render_template('reset.html', form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -368,7 +450,7 @@ def login():
             login_user(student, form.remember_me.data)
             return redirect(request.args.get('next') or \
                 url_for('school', school_shortname=student.school.shortname))
-        flash('Invalid username or password.')
+        flash('Invalid username or password')
     return render_template('login.html', form=form)
 
 
@@ -384,23 +466,33 @@ def logout():
 def settings():
     profile_form = StudentForm(obj=student)
     password_form = PasswordForm()
+    delete_form = DeleteForm()
     if profile_form.validate_on_submit():
-        current_user.name = form.name.data
-        current_user.website = form.website.data
-        current_user.description = form.description.data
-        current_user.tags = [finder(tag, 'tag') for tag in form.tags.data]
+        current_user.name = profile_form.name.data
+        current_user.website = profile_form.website.data
+        current_user.description = profile_form.description.data
+        current_user.tags = \
+                        [finder(tag, 'tag') for tag in profile_form.tags.data]
         db.session.add(current_user)
         db.session.commit()
-        flash('Profile updated successfully.')
+        flash('Profile updated successfully')
     if password_form.validate_on_submit():
-        if current_user.verify_password(form.current_password.data):
-            current_user.password = form.new_password.data
-            db.session.add(current_user)
-            db.session.commit()
-            flash('Password updated successfully.')
-        flash('Invalid password.')
+        current_user.password = password_form.new_password.data
+        db.session.add(current_user)
+        db.session.commit()
+        flash('Password updated successfully')
+    if delete_form.validate_on_submit():
+        deadman = current_user
+        logout_user()
+        db.session.delete(deadman)
+        db.session.commit()
+        send_email(deadman.email, 'Account deleted', 'mail/deleted', 
+                   student=deadman)
+        flash('Account deleted successfully')
+        return redirect(url_for('index'))
     return render_template('settings.html', profile_form=profile_form, 
-                           password_form=password_form)
+                           password_form=password_form, 
+                           delete_form=delete_form)
 
 
 @app.route('/tags')
@@ -457,9 +549,28 @@ def edit(school_shortname, student_id, project_id):
                 project.tags = [finder(tag, 'tag') for tag in form.tags.data]
                 db.session.add(project)
                 db.session.commit()
-                flash('Project updated successfully.')
+                flash('Project updated successfully')
             return render_template('edit.html', form=form)
-        redirect(url_for('project', project_id=project.id))
+        return redirect(url_for('project', project_id=project.id))
+    abort(404)
+
+
+@app.route('/<school_shortname>/<student_id>/<project_id>/delete', 
+           methods=['POST'])
+@login_required
+def delete(school_shortname, student_id, project_id):
+    check_school(school)
+    school = finder(school_shortname, 'school')
+    student =  finder(student_id, 'student')
+    project = finder(project_id, 'project')
+    if student.school is school and project.student is student:
+        if current_user == student:
+            db.session.delete(project)
+            db.session.commit()
+            flash('Project deleted successfully')
+            return redirect(url_for('school', 
+                                    school_shortname=student.school.shortname))
+        return redirect(url_for('project', project_id=project.id))
     abort(404)
 
 
