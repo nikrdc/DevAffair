@@ -1,4 +1,2 @@
-* delete project function
-* split up app.py into multiple files
 * tags
 * comments
