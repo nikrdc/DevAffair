@@ -1,9 +1,10 @@
 body {
     margin: 0;
+    background-color: #fdfdfd;
 }
 
 #logo {
-    margin: 6% auto 0 auto;
+    margin: 0 auto -4px auto;
     width: 200px;
     display: block;
 }
@@ -11,27 +12,171 @@ body {
 #introduction {
     text-align: center;
     background-color: #170341;
-    padding: 30px 0 37px 0;
-    margin: 6% auto;
+    padding: 26px 0 52px 0;
+    margin: 0 auto 40px auto;
     font-family: 'Lato', sans-serif;
-    color: white;
+    color: #d10056;
+    font-weight: 400;
+    font-size: 1rem;
+    border-bottom: 2px solid #d10056;
 }
 
 #slogan {
-    margin-bottom: 30px;
+    margin-bottom: 45px;
+    font-size: 1.05rem;
 }
 
 .entry_button {
     display: inline;
 }
 
-div.entry_button a {
-    padding: 5px 10px 7px 10px;
-    color: white;
+.entry_button a {
+    padding: 4px 10px 6px 10px;
+    color: #d10056;
     margin: 0 5px;
     text-decoration: none;
+    font-size: 0.94rem;
 }
 
-div#signup a {
-    border: 2px solid white;
+.entry_button a:hover {
+    color: #ffc71e;
+    -webkit-transition: all 0.3s;
+    -moz-transition: all 0.3s;
+    -ms-transition: all 0.3s;
+    -o-transition: all 0.3s;
+    transition: all 0.3s;
+}
+
+#signup a {
+    border: 2px solid #d10056;
+}
+
+#signup a:hover {
+    border: 2px solid #ffc71e;
+    -webkit-transition: all 0.3s;
+    -moz-transition: all 0.3s;
+    -ms-transition: all 0.3s;
+    -o-transition: all 0.3s;
+    transition: all 0.3s;
+}
+
+.mini_title { 
+    font-family: 'Rokkitt', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    text-align: center;
+    color: #D10056;
+    padding: 0 0 12px 0;
+    margin: 0 auto -9px auto;
+}
+
+.subtitle {
+    text-align: center;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.94rem;
+    font-weight: 400;
+    color: #414141;
+    margin-bottom: 30px;    
+}
+
+#schools {
+    width: 900px;
+    margin: 0 auto 0px auto;
+}
+
+.school_card {
+    width: 30.7%;
+    display: inline;
+    float: left;
+    margin: 1.3%;
+    height: 300px;
+    overflow: hidden;
+    border-radius: 2px;
+    background-color: black;
+}
+ 
+.school_pic {
+    position: relative;
+    z-index: 1;
+    height: 300px;
+    top: -28px;    
+    transition: all 0.15s linear;
+}
+
+.school_name {
+    font-family: 'Rokkitt', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    top: 45%;    
+    color: white;
+}
+
+a.darken img {
+    opacity: 0.6;
+}
+
+a.darken:hover img {
+    opacity: 0.4;
+}
+
+#how_it_works {
+    margin: 50px auto;
+}
+
+#steps {
+    margin: -10px auto 0 auto;
+    width: 900;
+    height: 420px;
+}
+
+.step {
+    width: 290px;
+    float: left;
+    margin: 0 5px;
+}
+
+.step_description {
+    width: 255px;
+    margin: 0 auto;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.88rem;
+    line-height: 150%;
+    text-align: center;
+}
+
+.step_img {
+    vertical-align: middle;
+    width: 100%;
+    margin: 0 auto;
+    display: block;
+}
+
+#step1 .step_description {
+    margin-top: 7px;
+}
+
+#step1 img {
+    width: 190px;
+}
+
+#step2 .step_description {
+    margin-top: 25px;
+}
+
+#step2 img {
+    width: 240px;
+    margin-top: 40px;
+}
+
+#step3 .step_description {
+    margin-top: 15px;
+}
+
+#step3 img {
+    width: 260px;
+    margin-top: 40px;
 }

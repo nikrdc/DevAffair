@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, redirect, session, url_for, abort, \
-                  flash, request, current_app
+                  flash, request, current_app, send_from_directory
 from flask.ext.script import Manager, Shell
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.migrate import Migrate, MigrateCommand

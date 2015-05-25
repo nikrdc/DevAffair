@@ -1,20 +1,52 @@
 {% extends "base.html" %}
 {% block title %}DevAffair{% endblock %}
 {% block body %}
-    <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,700,900' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Rokkitt:400,700' rel='stylesheet' type='text/css'>
+     
     <script>
         $(document).ready(function(){
-            $("#signup").hover(function(){
-                $("#introduction").stop().animate({backgroundColor:'#e23351'},200);
-                },function(){
-                $("#introduction").stop().animate({backgroundColor:'#170341'},200);
-            });
+            $(".school_card").last().css("margin-bottom","100px");
         });
     </script>
-    <img id="logo" src="{{ url_for('static', filename='logo.png') }}">
+    
     <div id="introduction">
+        <img id="logo" src="{{ url_for('static', filename='logo.png') }}">
         <div id="slogan">Connecting student groups with student developers</div>
         <div class="entry_button" id="signup"><a href="{{ url_for('signup') }}">Sign up</a></div>
         <div class="entry_button"><a href="{{ url_for('login') }}">Log in</a></div>
     </div>
+   
+    <div id="how_it_works">
+        <div class="mini_title">How it works</div>
+        <div class="subtitle">How do you use this website?</div>
+        <div id="steps">    
+            <div id="step1" class="step">
+                <img class="step_img" src="{{ url_for('static', filename='step1.png') }}">
+                <div class="step_description">Alice needs a website for a student group she founded. She posts her project to DevAffair.</div>
+            </div>
+            <div id="step2" class="step">
+                <img class="step_img" src="{{ url_for('static', filename='step2.png') }}">
+                <div class="step_description">Bob is a developer at the same school who wants to gain experience. He finds Alice's website project on DevAffair.</div>
+            </div>
+            <div id="step3" class="step">
+                <img class="step_img" src="{{ url_for('static', filename='step3.png') }}">
+                <div class="step_description">Simply dummy text of the printing and typesetting industry and lorem Ipsum has been.</div>
+        </div>
+    </div>
+
+
+    <div id="schools">
+        <div class="mini_title">Find your school</div>
+        <div class="subtitle">Collaborate with other students on projects you care about.</div>
+        {% for school in schools %}
+            <a class="darken" href="{{ url_for('school', school_shortname=school.shortname) }}">
+            <div class="school_card">            
+                <div class="school_name">{{ school.name }}</div>
+                <img class="school_pic" src="{{ url_for('static', filename=school.shortname+'.png') }}"> 
+            </div>
+            </a>
+        {% endfor %}
+    </div>
+
 {% endblock %}
