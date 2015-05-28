@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Sign up{% endblock %}
+{% block body %}
+	<div class="external_form">
+        <div class="internal_form">
+			<a href="{{ url_for('index') }}">
+        		<img id="logo" src="{{ url_for('static', filename='logo.png') }}">
+        	</a>
+            <form method="POST">
+                {{ form.csrf_token }}
+
+                {{ form.name.label }}<br>
+                {{ form.name() }}<br>
+                {% if form.name.errors %}
+                    {% for error in form.name.errors %}
+                        <div class="error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+
+                {{ form.email.label }}<br>
+                {{ form.email() }}<br>
+                {% if form.email.errors %}
+                    {% for error in form.email.errors %}
+                        <div class="error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+
+                {{ form.password.label }}<br>
+                {{ form.password() }}<br>
+
+                {{ form.submit() }}
+            </form>
+        </div>
+    </div>
+{% endblock %}

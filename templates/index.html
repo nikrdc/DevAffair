@@ -1,25 +1,26 @@
 {% extends "base.html" %}
 {% block title %}DevAffair{% endblock %}
-{% block body %}
-    <link href='http://fonts.googleapis.com/css?family=Lato:400,700,900' rel='stylesheet' type='text/css'>
-    <link href='http://fonts.googleapis.com/css?family=Rokkitt:400,700' rel='stylesheet' type='text/css'>
-     
+{% block body %} 
     <script>
-        $(document).ready(function(){
-            $(".school_card").last().css("margin-bottom","100px");
+        $(document).ready(function() {
+            $('.school_card').last().css('margin-bottom','80px');
         });
     </script>
-    
+
     <div id="introduction">
         <img id="logo" src="{{ url_for('static', filename='logo.png') }}">
         <div id="slogan">Connecting student groups with student developers</div>
-        <div class="entry_button" id="signup"><a href="{{ url_for('signup') }}">Sign up</a></div>
-        <div class="entry_button"><a href="{{ url_for('login') }}">Log in</a></div>
+        {% if current_user.is_authenticated() %}
+            <div class="exit_button"><a href="{{ url_for('logout') }}">Log out</a></div>
+        {% else %}
+            <div class="entry_button" id="signup_button"><a href="{{ url_for('signup') }}">Sign up</a></div>
+            <div class="entry_button" id="login_button"><a href="{{ url_for('login') }}">Log in</a></div>
+        {% endif %}
     </div>
    
     <div id="how_it_works">
         <div class="mini_title">How it works</div>
-        <div class="subtitle">How do you use this website?</div>
+        <div class="subtitle">Alice and Bob find each other on DevAffair.</div>
         <div id="steps">    
             <div id="step1" class="step">
                 <img class="step_img" src="{{ url_for('static', filename='step1.png') }}">
@@ -33,8 +34,8 @@
                 <img class="step_img" src="{{ url_for('static', filename='step3.png') }}">
                 <div class="step_description">Simply dummy text of the printing and typesetting industry and lorem Ipsum has been.</div>
         </div>
+        </div>
     </div>
-
 
     <div id="schools">
         <div class="mini_title">Find your school</div>
@@ -47,6 +48,14 @@
             </div>
             </a>
         {% endfor %}
+        <div class="school_card" id="lost_card">            
+            <div class="school_name" id="lost">Can't find your <br> school?</div>
+            <div id="lost_description">Don't worry! School is for losers.</div>
+            <img class="school_pic" id="lost_img" src="{{ url_for('static', filename='question.png') }}"> 
+        </div>
     </div>
 
+    <div id="theend">
+        <a href="http://nikrdc.com/">about</a>
+    </div>
 {% endblock %}

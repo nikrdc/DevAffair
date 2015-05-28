@@ -6,7 +6,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.migrate import Migrate, MigrateCommand
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask.ext.login import UserMixin, LoginManager, current_user, \
-                            login_required
+                            login_required, login_user, logout_user
 from flask.ext.wtf import Form
 from wtforms import Field, StringField, PasswordField, BooleanField, \
                     SubmitField
@@ -26,7 +26,7 @@ app = Flask(__name__)
 app.config['DEBUG'] = True
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or 'substitute key'
 app.config['SQLALCHEMY_DATABASE_URI'] = \
-                            'sqlite:///' + os.path.join(basedir, 'data.sqlite')
+                        'sqlite:///' + os.path.join(basedir, 'data.sqlite')
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -77,7 +77,7 @@ class School(db.Model):
 
     def __repr__(self):
         return '<School %r>' % self.name
-
+        
 
 class Student(UserMixin, db.Model):
     __tablename__ = 'students'
@@ -211,6 +211,10 @@ class SignupForm(Form):
     def validate_email(self, field):
         if Student.query.filter_by(email=field.data).first():
             raise ValidationError('This email address is already in use.')
+        elif len(field.data.split('@')) == 2 and \
+not School.query.filter_by(email_domain=field.data.split('@')[1]).first() \
+        and 'This email address is invalid.' not in field.errors:
+            raise ValidationError("Sorry! We don't support this school yet.")            
 
     password = PasswordField('Password')
     submit = SubmitField('Sign up')
@@ -274,9 +278,9 @@ class RequestResetForm(Form):
 
 class ResetForm(Form):
     email = StringField('Email', 
-                validators=[Required(message='Your email address is required.'),
-                            Length(1, 64), 
-                            Email(message='This email address is invalid.')])
+            validators=[Required(message='Your email address is required.'),
+                        Length(1, 64), 
+                        Email(message='This email address is invalid.')])
     new_password = PasswordField('New password', 
             validators=[Required(message='Your new password is required.')])
     submit = SubmitField('Reset password')
@@ -345,7 +349,8 @@ def send_email(to, subject, template, **kwargs):
 @app.before_request
 def before_request():
     if current_user.is_authenticated() and not current_user.confirmed \
-    and request.endpoint not in ['unconfirmed', 'reconfirm', 'confirm']:
+    and request.endpoint not in ['unconfirmed', 'reconfirm', 'confirm', 
+                                 'logout']:
         return redirect(url_for('unconfirmed'))
 
 
@@ -364,22 +369,41 @@ def signup():
     form = SignupForm()
     if form.validate_on_submit():
         school = \
-        School.query.filter_by(email_domain=form.email.data.split('@')[1])
-        if school:
-            student = Student(name=form.name.data,
-                              email=form.email.data,
-                              password=form.password.data,
-                              school=school)
-            db.session.add(student)
-            db.session.commit()
-            login_user(student)
-            token = student.generate_confirmation_token()
-            send_email(student.email, 'Confirm your account', 'mail/confirm', 
-                       student=student, token=token)
-            flash('A confirmation email has been sent to you by email.')
-            return redirect(url_for('index'))
-        return render_template('signup.html', form=form, found=False)
-    return render_template('signup.html', form=form, found=True)
+        School.query.filter_by(email_domain= \
+                               form.email.data.split('@')[1]).first()
+        student = Student(name=form.name.data,
+                          email=form.email.data,
+                          password=form.password.data,
+                          school=school)
+        db.session.add(student)
+        db.session.commit()
+        login_user(student)
+        token = student.generate_confirmation_token()
+        '''
+        send_email(student.email, 'Confirm your account', 'mail/confirm', 
+                   student=student, token=token)
+        '''
+        flash('A confirmation email has been sent to you by email.')
+        return redirect(url_for('school', 
+                                school_shortname=student.school.shortname))
+    return render_template('signup.html', form=form)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated():
+        flash('You have already logged in!')
+        return redirect(url_for('school', 
+                                school_shortname=student.school.shortname))
+    form = LoginForm()
+    if form.validate_on_submit():
+        student = Student.query.filter_by(email=form.email.data).first()
+        if student and student.verify_password(form.password.data):
+            login_user(student, form.remember_me.data)
+            return redirect(request.args.get('next') or \
+                url_for('school', school_shortname=student.school.shortname))
+        flash('Invalid username or password.')
+    return render_template('login.html', form=form)
 
 
 @app.route('/unconfirmed')
@@ -435,23 +459,6 @@ def reset(token):
             return redirect(url_for('login'))
         flash('The password reset link is invalid or has expired.')
     return render_template('reset.html', form=form)
-
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if current_user.is_authenticated():
-        flash('You have already logged in!')
-        return redirect(url_for('school', 
-                                school_shortname=student.school.shortname))
-    form = LoginForm()
-    if form.validate_on_submit():
-        student = Student.query.filter_by(email=form.email.data).first()
-        if student and student.verify_password(form.password.data):
-            login_user(student, form.remember_me.data)
-            return redirect(request.args.get('next') or \
-                url_for('school', school_shortname=student.school.shortname))
-        flash('Invalid username or password')
-    return render_template('login.html', form=form)
 
 
 @app.route('/logout')

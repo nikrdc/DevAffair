@@ -12,8 +12,8 @@ body {
 #introduction {
     text-align: center;
     background-color: #170341;
-    padding: 26px 0 52px 0;
-    margin: 0 auto 40px auto;
+    padding: 32px 0 62px 0;
+    margin: 0 auto;
     font-family: 'Lato', sans-serif;
     color: #d10056;
     font-weight: 400;
@@ -22,50 +22,55 @@ body {
 }
 
 #slogan {
-    margin-bottom: 45px;
     font-size: 1.05rem;
 }
 
-.entry_button {
-    display: inline;
+.exit_button a {
+    margin: -115px 15px 0 0;
+    float: right;
 }
 
-.entry_button a {
+.entry_button {
+    display: inline-block;
+    margin: 40px 5px -10px 5px;
+}
+
+.entry_button a, .exit_button a {
     padding: 4px 10px 6px 10px;
     color: #d10056;
-    margin: 0 5px;
     text-decoration: none;
     font-size: 0.94rem;
+    cursor: pointer;
 }
 
-.entry_button a:hover {
+.entry_button a:hover, .exit_button a:hover {
     color: #ffc71e;
     -webkit-transition: all 0.3s;
-    -moz-transition: all 0.3s;
-    -ms-transition: all 0.3s;
-    -o-transition: all 0.3s;
-    transition: all 0.3s;
+       -moz-transition: all 0.3s;
+        -ms-transition: all 0.3s;
+         -o-transition: all 0.3s;
+            transition: all 0.3s;
 }
 
-#signup a {
+#signup_button a {
     border: 2px solid #d10056;
 }
 
-#signup a:hover {
+#signup_button a:hover {
     border: 2px solid #ffc71e;
     -webkit-transition: all 0.3s;
-    -moz-transition: all 0.3s;
-    -ms-transition: all 0.3s;
-    -o-transition: all 0.3s;
-    transition: all 0.3s;
+       -moz-transition: all 0.3s;
+        -ms-transition: all 0.3s;
+         -o-transition: all 0.3s;
+            transition: all 0.3s;
 }
 
 .mini_title { 
     font-family: 'Rokkitt', serif;
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     font-weight: 700;
     text-align: center;
-    color: #D10056;
+    color: #313131;
     padding: 0 0 12px 0;
     margin: 0 auto -9px auto;
 }
@@ -81,7 +86,7 @@ body {
 
 #schools {
     width: 900px;
-    margin: 0 auto 0px auto;
+    margin: 40px auto 0 auto;
 }
 
 .school_card {
@@ -115,6 +120,31 @@ body {
     color: white;
 }
 
+#lost_card {
+    background-color: #bebebe;
+}
+
+#lost {
+    top: 35%;
+}
+
+#lost_description {
+    text-align: center;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.88rem;
+    line-height: 150%;
+    color: white;
+    z-index: 2;
+    position: relative;
+    margin-top: 110px;
+}
+
+#lost_img {
+    z-index: 0;
+    margin-top: -159px;
+    position: relative;
+}
+
 a.darken img {
     opacity: 0.6;
 }
@@ -130,7 +160,7 @@ a.darken:hover img {
 #steps {
     margin: -10px auto 0 auto;
     width: 900;
-    height: 420px;
+    height: 380px;
 }
 
 .step {
@@ -146,6 +176,7 @@ a.darken:hover img {
     font-size: 0.88rem;
     line-height: 150%;
     text-align: center;
+    color: #313131;
 }
 
 .step_img {
@@ -179,4 +210,102 @@ a.darken:hover img {
 #step3 img {
     width: 260px;
     margin-top: 40px;
+}
+
+#theend {
+    float: left;
+    text-align: center;
+    width: 100%;
+    margin: 30px auto;
+    font-family: 'Lato', sans-serif;
+}
+
+#theend a {
+    text-decoration: none;
+    border-bottom: 2px solid #d10056;
+    color: #d10056;
+}
+
+.external_form {
+    width: 100%;
+    height: 100%;
+    background-color: #9edadb;
+}
+
+.internal_form {
+    width: 220px;
+    top: 50%;
+    right: 50%;
+    height: 300px;
+    margin: -200px -110px 0 0;
+    position: absolute;
+}
+
+.internal_form #logo {
+    margin-bottom: 10px;
+}
+
+.internal_form label {
+    font-family: 'Lato', sans-serif;
+    font-weight: 900;
+    letter-spacing: 1px;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    margin-left: 2px;
+    color: #2c7476;
+}
+
+.internal_form input {
+    width: 100%;
+    height: 30px;
+    border: none;
+    margin: 3px 0 17px 0;
+    padding: 7px 7px 9px 7px;
+    font-size: 1rem;
+    font-family: 'Lato', sans-serif;
+    border-radius: 1px;
+    background-color: #fdfdfd;
+    color: #170341;
+}
+
+.internal_form input[type='text']:focus, .internal_form input[type='password']:focus {
+    outline: 3px solid #ffc71e;
+    -webkit-transition: all 0.2s;
+       -moz-transition: all 0.2s;
+        -ms-transition: all 0.2s;
+         -o-transition: all 0.2s;
+            transition: all 0.2s;
+}
+
+.internal_form #submit {
+    background-color: #d10056;
+    color: white;
+    height: 30px;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    font-family: 'Lato', sans-serif;
+    font-weight: 400;
+    padding: 6px 0 10px 0;
+    width: 100px;
+    display: block;
+    margin: 11px auto 0 auto;
+    cursor: pointer;
+    border-radius: 2px;
+}
+
+.internal_form #submit:hover {
+    background-color: #ff056c;
+    -webkit-transition: all 0.2s;
+       -moz-transition: all 0.2s;
+        -ms-transition: all 0.2s;
+         -o-transition: all 0.2s;
+            transition: all 0.2s;
+}
+
+.error {
+    color: #d10056;
+    font-family: 'Lato', sans-serif;
+    font-weight: 400;
+    font-size: 0.94rem;
+    margin: -15px 0 25px 3px;
 }
