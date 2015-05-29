@@ -11,7 +11,7 @@ body {
 
 #introduction {
     text-align: center;
-    background-color: #170341;
+    background-color: #9edadb;
     padding: 32px 0 62px 0;
     margin: 0 auto;
     font-family: 'Lato', sans-serif;
@@ -32,11 +32,11 @@ body {
 
 .entry_button {
     display: inline-block;
-    margin: 40px 5px -10px 5px;
+    margin: 30px 5px -10px 5px;
 }
 
 .entry_button a, .exit_button a {
-    padding: 4px 10px 6px 10px;
+    padding: 3px 16px 5px 16px;
     color: #d10056;
     text-decoration: none;
     font-size: 0.94rem;
@@ -44,25 +44,35 @@ body {
 }
 
 .entry_button a:hover, .exit_button a:hover {
-    color: #ffc71e;
-    -webkit-transition: all 0.3s;
-       -moz-transition: all 0.3s;
-        -ms-transition: all 0.3s;
-         -o-transition: all 0.3s;
-            transition: all 0.3s;
+    color: #ff056c;
+    -webkit-transition: all 0.2s;
+       -moz-transition: all 0.2s;
+        -ms-transition: all 0.2s;
+         -o-transition: all 0.2s;
+            transition: all 0.2s;
 }
 
 #signup_button a {
-    border: 2px solid #d10056;
+    background-color: #d10056;
+    color: #fdfdfd;
+    font-size: 0.9rem;
+    font-family: 'Lato', sans-serif;
+    font-weight: 400;
+    padding: 6px 0 7px 0;
+    width: 80px;
+    display: block;
+    margin: 11px auto 0 auto;
+    cursor: pointer;
+    border-radius: 2px;
 }
 
 #signup_button a:hover {
-    border: 2px solid #ffc71e;
-    -webkit-transition: all 0.3s;
-       -moz-transition: all 0.3s;
-        -ms-transition: all 0.3s;
-         -o-transition: all 0.3s;
-            transition: all 0.3s;
+    background-color: #ff056c;
+    -webkit-transition: all 0.2s;
+       -moz-transition: all 0.2s;
+        -ms-transition: all 0.2s;
+         -o-transition: all 0.2s;
+            transition: all 0.2s;
 }
 
 .mini_title { 
@@ -226,6 +236,16 @@ a.darken:hover img {
     color: #d10056;
 }
 
+#theend a:hover {
+    color: #ff056c;
+    border-bottom: 2px solid #ff056c;
+    -webkit-transition: all 0.2s;
+       -moz-transition: all 0.2s;
+        -ms-transition: all 0.2s;
+         -o-transition: all 0.2s;
+            transition: all 0.2s;
+}
+
 .external_form {
     width: 100%;
     height: 100%;
@@ -242,7 +262,7 @@ a.darken:hover img {
 }
 
 .internal_form #logo {
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
 .internal_form label {
@@ -282,13 +302,12 @@ a.darken:hover img {
     color: white;
     height: 30px;
     font-size: 0.9rem;
-    text-transform: uppercase;
     font-family: 'Lato', sans-serif;
     font-weight: 400;
     padding: 6px 0 10px 0;
     width: 100px;
     display: block;
-    margin: 11px auto 0 auto;
+    margin: 15px auto 0 auto;
     cursor: pointer;
     border-radius: 2px;
 }

@@ -83,6 +83,7 @@ class Student(UserMixin, db.Model):
     __tablename__ = 'students'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
+    username = db.Column(db.String(64))
     email = db.Column(db.String(64), unique=True)
     website = db.Column(db.String(64))
     description = db.Column(db.Text())
@@ -301,28 +302,17 @@ def internal_server_error(e):
 
 # Helpers
 
-def finder(key, type):
+def finder(key, type, key2=None):
     if type == 'school':
         return School.query.filter_by(shortname=key).first_or_404()
     if type == 'student':
-        return Student.query.get(key) or abort(404)
+        return Student.query.filter_by(username=key, school=key2).first() or \
+               abort(404)
     if type == 'project':
         return Project.query.get(key) or abort(404)
     if type == 'tag':
         return Tag.query.filter_by(name=key).first_or_404()
     abort(404)
-
-
-def check_confirmed():
-    if current_user.confirmed:
-        flash('You have already confirmed your account!')
-        return redirect(url_for('school', 
-                                school_shortname=student.school.shortname))
-
-
-def check_school(school):
-    if current_user.school is not school:
-        return render_template('incorrect_school.html')
 
 
 
@@ -350,7 +340,7 @@ def send_email(to, subject, template, **kwargs):
 def before_request():
     if current_user.is_authenticated() and not current_user.confirmed \
     and request.endpoint not in ['unconfirmed', 'reconfirm', 'confirm', 
-                                 'logout']:
+                                 'logout', 'static']:
         return redirect(url_for('unconfirmed'))
 
 
@@ -372,6 +362,7 @@ def signup():
         School.query.filter_by(email_domain= \
                                form.email.data.split('@')[1]).first()
         student = Student(name=form.name.data,
+                          username=form.email.data.split('@')[0],
                           email=form.email.data,
                           password=form.password.data,
                           school=school)
@@ -408,14 +399,20 @@ def login():
 
 @app.route('/unconfirmed')
 def unconfirmed():
-    check_confirmed()
+    if current_user.confirmed:
+        flash('You have already confirmed your account!')
+        return redirect(url_for('school', 
+                                school_shortname=current_user.school.shortname))
     return render_template('unconfirmed.html')
 
 
 @app.route('/confirm')
 @login_required
 def reconfirm():
-    check_confirmed()
+    if current_user.confirmed:
+        flash('You have already confirmed your account!')
+        return redirect(url_for('school', 
+                                school_shortname=current_user.school.shortname))
     token = current_user.generate_confirmation_token()
     send_email(student.email, 'Confirm your account', 'mail/confirm', 
                student=student, token=token)
@@ -426,8 +423,11 @@ def reconfirm():
 @app.route('/confirm/<token>')
 @login_required
 def confirm(token):
-    check_confirmed()
-    if current_user.confirm(token):
+    if current_user.confirmed:
+        flash('You have already confirmed your account!')
+        return redirect(url_for('school', 
+                                school_shortname=current_user.school.shortname))
+    elif current_user.confirm(token):
         flash('Account confirmed successfully')
         return redirect(url_for('school', 
                                 school_shortname=student.school.shortname))
@@ -516,36 +516,39 @@ def school(school_shortname):
     return render_template('public_school.html')
 
 
-@app.route('/<school_shortname>/<student_id>')
+@app.route('/<school_shortname>/<student_username>')
 @login_required
-def student(school_shortname, student_id):
-    check_school(school)
+def student(school_shortname, student_username):
     school = finder(school_shortname, 'school')
-    student =  finder(student_id, 'student')
+    if current_user.school is not school:
+        return render_template('incorrect_school.html')
+    student =  finder(student_username, 'student', school)
     if student.school is school:
         return render_template('student.html', student=student)
     abort(404)
 
 
-@app.route('/<school_shortname>/<student_id>/<project_id>')
+@app.route('/<school_shortname>/<student_username>/<project_id>')
 @login_required
-def project(school_shortname, student_id, project_id):
-    check_school(school)
+def project(school_shortname, student_username, project_id):
     school = finder(school_shortname, 'school')
-    student =  finder(student_id, 'student')
+    if current_user.school is not school:
+        return render_template('incorrect_school.html')
+    student =  finder(student_username, 'student', school)
     project = finder(project_id, 'project')
     if student.school is school and project.student is student:
         return render_template('project.html', project=project)
     abort(404)
 
 
-@app.route('/<school_shortname>/<student_id>/<project_id>/edit', 
+@app.route('/<school_shortname>/<student_username>/<project_id>/edit', 
            methods=['GET', 'POST'])
 @login_required
-def edit(school_shortname, student_id, project_id):
-    check_school(school)
+def edit(school_shortname, student_username, project_id):
     school = finder(school_shortname, 'school')
-    student =  finder(student_id, 'student')
+    if current_user.school is not school:
+        return render_template('incorrect_school.html')
+    student =  finder(student_username, 'student', school)
     project = finder(project_id, 'project')
     if student.school is school and project.student is student:
         if current_user == student:
@@ -562,7 +565,7 @@ def edit(school_shortname, student_id, project_id):
     abort(404)
 
 
-@app.route('/<school_shortname>/<student_id>/<project_id>/delete', 
+@app.route('/<school_shortname>/<student_username>/<project_id>/delete', 
            methods=['POST'])
 @login_required
 def delete(school_shortname, student_id, project_id):
