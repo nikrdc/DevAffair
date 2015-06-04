@@ -1,12 +1,6 @@
 {% extends "base.html" %}
 {% block title %}DevAffair{% endblock %}
 {% block body %} 
-    <script>
-        $(document).ready(function() {
-            $('.school_card').last().css('margin-bottom','80px');
-        });
-    </script>
-
     <div id="introduction">
         <img id="logo" src="{{ url_for('static', filename='logo.png') }}">
         <div id="slogan">Connecting student groups with student developers</div>
@@ -54,8 +48,7 @@
             <img class="school_pic" id="lost_img" src="{{ url_for('static', filename='question.png') }}"> 
         </div>
     </div>
-
     <div id="theend">
-        <a href="http://nikrdc.com/">about</a>
+        <div class="entry_button"><a href="http://nikrdc.com/">about</a></div>
     </div>
 {% endblock %}

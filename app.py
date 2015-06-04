@@ -15,6 +15,7 @@ from wtforms.validators import Length, Required, Email, ValidationError
 from flask.ext.mail import Mail, Message
 from threading import Thread
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from random import sample
 
 
 
@@ -64,6 +65,10 @@ taggers = db.Table('taggers',
         db.Column('project_id', db.Integer, db.ForeignKey('projects.id')),
         db.Column('student_id', db.Integer, db.ForeignKey('students.id')))
 
+j_students = db.Table('j_students',
+        db.Column('student_id', db.Integer, db.ForeignKey('students.id')),
+        db.Column('project_id', db.Integer, db.ForeignKey('projects.id')))
+
 
 class School(db.Model):
     __tablename__ = 'schools'
@@ -91,6 +96,10 @@ class Student(UserMixin, db.Model):
 
     school_id = db.Column(db.Integer, db.ForeignKey('schools.id'))
     projects = db.relationship('Project', backref='student', lazy='dynamic')
+
+    j_projects = db.relationship('Project', secondary=j_students,
+                            backref=db.backref('j_students', lazy='dynamic'),
+                            lazy='dynamic')
 
     password_hash = db.Column(db.String(128))
 
@@ -146,6 +155,8 @@ class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
     description = db.Column(db.Text())
+    time_posted = db.Column(db.DateTime)
+    complete = db.Column(db.Boolean, default=False)
 
     school_id = db.Column(db.Integer, db.ForeignKey('schools.id'))
     student_id = db.Column(db.Integer, db.ForeignKey('students.id'))
@@ -355,7 +366,7 @@ def signup():
     if current_user.is_authenticated():
         flash('You have already signed up and logged in!')
         return redirect(url_for('school', 
-                                school_shortname=student.school.shortname))
+                                school_shortname=current_user.school.shortname))
     form = SignupForm()
     if form.validate_on_submit():
         school = \
@@ -385,7 +396,7 @@ def login():
     if current_user.is_authenticated():
         flash('You have already logged in!')
         return redirect(url_for('school', 
-                                school_shortname=student.school.shortname))
+                                school_shortname=current_user.school.shortname))
     form = LoginForm()
     if form.validate_on_submit():
         student = Student.query.filter_by(email=form.email.data).first()
@@ -513,7 +524,10 @@ def school(school_shortname):
     school = finder(school_shortname, 'school')
     if current_user.is_authenticated() and current_user.school is school:
         return render_template('school.html', school=school)
-    return render_template('public_school.html')
+    #projects = sample(school.projects.filter_by(complete=False).all(), 5)
+    projects = school.projects.filter_by(complete=False).all()
+    return render_template('public_school.html', school=school, 
+                           projects=projects)
 
 
 @app.route('/<school_shortname>/<student_username>')
@@ -591,6 +605,7 @@ def new():
     if form.validate_on_submit():
         project = Project(name=form.name.data,
                           description=form.description.data,
+                          time_posted=datetime.now(),
                           student=current_user,
                           school=current_user.school,
                           tags=[finder(tag, 'tag') for tag in form.tags.data])

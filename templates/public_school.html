@@ -1,5 +1,43 @@
 {% extends "base.html" %}
-{% block title %}DevAffair{% endblock %}
+{% block title %}{{ school.name }}{% endblock %}
 {% block body %}
-    hai
+    <div id="navbar">
+    	<div id="navbar_cramped">
+    		<a id="logo_link" href="{{ url_for('index') }}">
+        		<img id="logo" src="{{ url_for('static', filename='logo.png') }}">
+        	</a>
+    		<div id="entry_buttons">
+				<div class="entry_button" id="signup_button"><a href="{{ url_for('signup') }}">Sign up</a></div>
+            	<div class="entry_button" id="login_button"><a href="{{ url_for('login') }}">Log in</a></div>
+            </div>
+    	</div>
+    </div>
+    <div id="school_hero">
+    	<div class="mini_title">{{ school.name }}</div>
+    </div>
+    <div class="public_project">
+        <div class="p_name">Yoloville</div>
+        <div class="p_time">June 3, 2015 at 3:52 PM</div>
+        <div class="p_description">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.</div>
+        <div class="p_tags">
+            <a class="p_tag">web</a>
+            <a class="p_tag">logo</a>
+            <a class="p_tag">print</a>
+        </div>
+    </div>
+    {% for project in projects %}
+    	<!-- <div class="public_project">
+    		<div class="p_name">{{ project.name }}</div>
+            <div class="p_time">{{ project.time_posted.strftime('%B %-d, %Y at %-I:%M %p') }}</div>
+    		<div class="p_description">{{ project.description }}</div>
+            <div class="p_tags">
+                {% for tag in project.tags %}
+                    <a class="p_tag" url="{{ url_for('') }}">{{ tag.name }}</a>
+                {% endfor %}
+            </div>
+    	</div>-->
+    {% endfor %}
+    <div id="theend">
+        <div class="entry_button"><a href="http://nikrdc.com/">about</a></div>
+    </div>
 {% endblock %}
