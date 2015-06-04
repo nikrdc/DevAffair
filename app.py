@@ -357,6 +357,8 @@ def before_request():
 
 @app.route('/')
 def index():
+    if current_user.is_authenticated():
+        return render_template('dashboard.html', school=current_user.school)
     schools = School.query.all()
     return render_template('index.html', schools=schools)
 
@@ -365,8 +367,7 @@ def index():
 def signup():
     if current_user.is_authenticated():
         flash('You have already signed up and logged in!')
-        return redirect(url_for('school', 
-                                school_shortname=current_user.school.shortname))
+        return redirect(url_for('index'))
     form = SignupForm()
     if form.validate_on_submit():
         school = \
@@ -386,8 +387,7 @@ def signup():
                    student=student, token=token)
         '''
         flash('A confirmation email has been sent to you by email.')
-        return redirect(url_for('school', 
-                                school_shortname=student.school.shortname))
+        return redirect(url_for('index'))
     return render_template('signup.html', form=form)
 
 
@@ -395,25 +395,23 @@ def signup():
 def login():
     if current_user.is_authenticated():
         flash('You have already logged in!')
-        return redirect(url_for('school', 
-                                school_shortname=current_user.school.shortname))
+        return redirect(url_for('index'))
     form = LoginForm()
     if form.validate_on_submit():
         student = Student.query.filter_by(email=form.email.data).first()
         if student and student.verify_password(form.password.data):
             login_user(student, form.remember_me.data)
-            return redirect(request.args.get('next') or \
-                url_for('school', school_shortname=student.school.shortname))
+            return redirect(request.args.get('next') or url_for('index'))
         flash('Invalid username or password.')
     return render_template('login.html', form=form)
 
 
 @app.route('/unconfirmed')
+@login_required
 def unconfirmed():
     if current_user.confirmed:
         flash('You have already confirmed your account!')
-        return redirect(url_for('school', 
-                                school_shortname=current_user.school.shortname))
+        return redirect(url_for('index'))
     return render_template('unconfirmed.html')
 
 
@@ -422,13 +420,12 @@ def unconfirmed():
 def reconfirm():
     if current_user.confirmed:
         flash('You have already confirmed your account!')
-        return redirect(url_for('school', 
-                                school_shortname=current_user.school.shortname))
+        return redirect(url_for('index'))
     token = current_user.generate_confirmation_token()
     send_email(student.email, 'Confirm your account', 'mail/confirm', 
                student=student, token=token)
     flash('A new confirmation email has been sent to you by email.')
-    return redirect(url_for('index'))
+    return redirect(url_for('unconfirmed'))
 
 
 @app.route('/confirm/<token>')
@@ -436,12 +433,10 @@ def reconfirm():
 def confirm(token):
     if current_user.confirmed:
         flash('You have already confirmed your account!')
-        return redirect(url_for('school', 
-                                school_shortname=current_user.school.shortname))
+        return redirect(url_for('index'))
     elif current_user.confirm(token):
         flash('Account confirmed successfully')
-        return redirect(url_for('school', 
-                                school_shortname=student.school.shortname))
+        return redirect(url_for('index'))
     flash('The confirmation link is invalid or has expired.')
     return redirect(url_for('unconfirmed'))
 
@@ -519,52 +514,35 @@ def tags():
     render_template('tags.html', tags=tags)
 
 
-@app.route('/<school_shortname>')
-def school(school_shortname):
-    school = finder(school_shortname, 'school')
-    if current_user.is_authenticated() and current_user.school is school:
-        return render_template('school.html', school=school)
+@app.route('/<shortname_username>')
+def school_student(shortname_username):
+    if current_user.is_authenticated():
+        student =  finder(shortname_username, 'student', current_user.school)
+        return render_template('student.html', student=student)
+    school = finder(shortname_username, 'school')
     #projects = sample(school.projects.filter_by(complete=False).all(), 3)
     projects = school.projects.filter_by(complete=False).all()
     return render_template('public_school.html', school=school, 
                            projects=projects)
 
 
-@app.route('/<school_shortname>/<student_username>')
+@app.route('/<student_username>/<project_id>')
 @login_required
-def student(school_shortname, student_username):
-    school = finder(school_shortname, 'school')
-    if current_user.school is not school:
-        return render_template('incorrect_school.html')
-    student =  finder(student_username, 'student', school)
-    if student.school is school:
-        return render_template('student.html', student=student)
-    abort(404)
-
-
-@app.route('/<school_shortname>/<student_username>/<project_id>')
-@login_required
-def project(school_shortname, student_username, project_id):
-    school = finder(school_shortname, 'school')
-    if current_user.school is not school:
-        return render_template('incorrect_school.html')
-    student =  finder(student_username, 'student', school)
+def project(student_username, project_id):
+    student =  finder(student_username, 'student', current_user.school)
     project = finder(project_id, 'project')
-    if student.school is school and project.student is student:
+    if project.student is student:
         return render_template('project.html', project=project)
     abort(404)
 
 
-@app.route('/<school_shortname>/<student_username>/<project_id>/edit', 
+@app.route('/<student_username>/<project_id>/edit', 
            methods=['GET', 'POST'])
 @login_required
-def edit(school_shortname, student_username, project_id):
-    school = finder(school_shortname, 'school')
-    if current_user.school is not school:
-        return render_template('incorrect_school.html')
-    student =  finder(student_username, 'student', school)
+def edit(student_username, project_id):
+    student =  finder(student_username, 'student', current_user.school)
     project = finder(project_id, 'project')
-    if student.school is school and project.student is student:
+    if project.student is student:
         if current_user == student:
             form = ProjectForm(obj=project)
             if form.validate_on_submit():
@@ -575,26 +553,26 @@ def edit(school_shortname, student_username, project_id):
                 db.session.commit()
                 flash('Project updated successfully')
             return render_template('edit.html', form=form)
-        return redirect(url_for('project', project_id=project.id))
+        return redirect(url_for('project', student_username=student_username,
+                                project_id=project_id))
     abort(404)
 
 
-@app.route('/<school_shortname>/<student_username>/<project_id>/delete', 
+@app.route('/<student_username>/<project_id>/delete', 
            methods=['POST'])
 @login_required
-def delete(school_shortname, student_id, project_id):
-    check_school(school)
-    school = finder(school_shortname, 'school')
-    student =  finder(student_id, 'student')
+def delete(student_username, project_id):
+    student =  finder(student_username, 'student', current_user.school)
     project = finder(project_id, 'project')
-    if student.school is school and project.student is student:
+    if project.student is student:
         if current_user == student:
             db.session.delete(project)
             db.session.commit()
             flash('Project deleted successfully')
             return redirect(url_for('school', 
                                     school_shortname=student.school.shortname))
-        return redirect(url_for('project', project_id=project.id))
+        return redirect(url_for('project', student_username=student_username,
+                                project_id=project_id))
     abort(404)
 
 

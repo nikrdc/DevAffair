@@ -7,7 +7,7 @@
         		<img id="logo" src="{{ url_for('static', filename='logo.png') }}">
         	</a>
             <div id="inside">
-                <a id="username_link" href="{{ url_for('student', school_shortname=school.shortname, student_username=current_user.username) }}">{{ current_user.username }}</a>
+                <a id="username_link" href="{{ url_for('school_student', shortname_username=current_user.username) }}">{{ current_user.username }}</a>
                 <a href="{{ url_for('new') }}"><span class="octicon octicon-plus"></span></a>
                 <a href="{{ url_for('logout') }}"><span class="octicon octicon-sign-out"></span></a>
             </div>
