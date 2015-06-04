@@ -524,7 +524,7 @@ def school(school_shortname):
     school = finder(school_shortname, 'school')
     if current_user.is_authenticated() and current_user.school is school:
         return render_template('school.html', school=school)
-    #projects = sample(school.projects.filter_by(complete=False).all(), 5)
+    #projects = sample(school.projects.filter_by(complete=False).all(), 3)
     projects = school.projects.filter_by(complete=False).all()
     return render_template('public_school.html', school=school, 
                            projects=projects)
