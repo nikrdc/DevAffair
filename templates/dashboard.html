@@ -1,44 +1,41 @@
-{% extends "base.html" %}
-{% block title %}{{ school.name }}{% endblock %}
-{% block body %}
-    <div id="navbar">
-    	<div id="navbar_cramped">
-    		<a id="logo_link" href="{{ url_for('index') }}">
-        		<img id="logo" src="{{ url_for('static', filename='logo.png') }}">
-        	</a>
-            <div id="inside">
-                <a id="username_link" href="{{ url_for('school_student', shortname_username=current_user.username) }}">{{ current_user.username }}</a>
-                <a href="{{ url_for('new') }}"><span class="octicon octicon-plus"></span></a>
-                <a href="{{ url_for('logout') }}"><span class="octicon octicon-sign-out"></span></a>
-            </div>
-    	</div>
-    </div>
-    <div id="school_hero">
-    	<div class="mini_title">{{ school.name }}</div>
-    </div>
-    <div class="project">
-        <div class="p_name">Yoloville</div>
-        <div class="p_time">June 3, 2015 at 3:52 PM</div>
-        <div class="p_description">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.</div>
-        <div class="p_tags">
-            <a class="p_tag">web</a>
-            <a class="p_tag">logo</a>
-            <a class="p_tag">print</a>
+{% extends "authenticated.html" %}
+{% block title %}DevAffair{% endblock %}
+{% block batwing %}
+    {% if incoming_requests or outgoing_requests or active_projects %}
+        <div id="dash">
+            {% if incoming_requests or outgoing_requests %}
+                <div class="dash_section" id="dash_requests">
+                    {% if incoming_requests %}
+                        <div class="dash_title">Requests on your projects</div>
+                        {% for ps_tuple in incoming_requests %}
+                            <div class="response"><a href="{{ url_for('rj_request', student_username=ps_tuple[1].username, project_hashid=ps_tuple[0].hashid, type='j_append') }}"><span class="octicon octicon-check"></span></a><a href="{{ url_for('rj_request', student_username=ps_tuple[1].username, project_hashid=ps_tuple[0].hashid, type='r_remove') }}"><span class="octicon octicon-x"></span></a></div><div class="dash_li"><a href="{{ url_for('school_student', shortname_username=ps_tuple[1].username) }}">{{ ps_tuple[1].name }}</a> requested to join <a href="{{ url_for('project', student_username=current_user.username, project_hashid=ps_tuple[0].hashid) }}">{{ ps_tuple[0].name }}</a></div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    {% if outgoing_requests %}
+                        <div class="dash_title">Projects you've requested to join</div>
+                        {% for project in outgoing_requests %}
+                            <div class="response"><a href="{{ url_for('rj_request', student_username=current_user.username, project_hashid=project.hashid, type='r_remove') }}"><span class="octicon octicon-x"></span></a></div><div class="dash_li"><a href="{{ url_for('project', student_username=project.student.username, project_hashid=project.hashid) }}">{{ project.name }}</a></div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            {% endif %}
+            
+            {% if active_projects %}
+                <div class="dash_section" id="dash_active">
+                    <div class="dash_title">Active projects</div>
+                    {% for project in active_projects %}
+                        <div class="response"><span class="octicon octicon-chevron-right"></span></div><div class="dash_li"><a href="{{ url_for('project', student_username=project.student.username, project_hashid=project.hashid) }}">{{ project.name }}</a></div>
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
-    </div>
-    {% for project in projects %}
-    	<div class="project">
-    		<div class="p_name">{{ project.name }}</div>
-            <div class="p_time">{{ project.time_posted.strftime('%B %-d, %Y at %-I:%M %p') }}</div>
-    		<div class="p_description">{{ project.description }}</div>
-            <div class="p_tags">
-                {% for tag in project.tags %}
-                    <a class="p_tag">{{ tag.name }}</a>
-                {% endfor %}
-            </div>
-    	</div>
-    {% endfor %}
-    <div id="theend">
-        <div class="entry_button"><a href="http://nikrdc.com/">about</a></div>
+    {% else %}
+        <div id="breaker"></div>
+    {% endif %}
+
+    <div id="explore">
+        <div class="dash_title">Explore {{ current_user.school.name }}</div>
+        <div class="dash_subtitle">{{ current_user.school.students.count() }} students <span class="octicon octicon-primitive-dot"></span> {{ current_user.school.projects.count() }} projects</div>
     </div>
 {% endblock %}

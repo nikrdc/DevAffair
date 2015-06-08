@@ -1,0 +1,25 @@
+{% extends "authenticated.html" %}
+{% block title %}Search{% endblock %}
+{% block batwing %}
+    <div id="search">
+        <div id="query_terms">Results for '{{ query }}'</div>
+    
+        <div class="search_type">{{ project_results|count }} project{% if project_results|count != 1 %}s{% endif %} found:</div>
+        {% for project in project_results %}
+            <div id="project">
+                <div class="p_name"><a href="{{ url_for('project', student_username=project.student.username, project_hashid=project.hashid) }}">{{ project.name }}</a>{% if project.website %} / <a href="{{ ''.join(['http://', project.website]) }}">{{ project.website }}</a>{% endif %}</div>
+                <div class="p_time">Created {{ project.time_posted.strftime('%B %-d, %Y at %-I:%M %p') }}</div>
+                <div class="p_description">{{ project.description }}</div>
+            </div>
+        {% endfor %}
+    
+        <div class="search_type">{{ student_results|count }} student{% if student_results|count != 1 %}s{% endif %} found:</div>
+        {% for student in student_results %}
+            <div id="student">
+                <div class="s_name"><a href="{{ url_for('school_student', shortname_username=student.username) }}">{{ student.name }}</a>{% if student.website %} / <a href="{{ ''.join(['http://', student.website]) }}">{{ student.website }}</a>{% endif %}</div>
+                <div class="s_time">Joined {{ student.time_joined.strftime('%B %-d, %Y at %-I:%M %p') }}</div>
+                <div class="s_description">{{ student.description }}</div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

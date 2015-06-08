@@ -16,6 +16,9 @@ from flask.ext.mail import Mail, Message
 from threading import Thread
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from random import sample
+from datetime import datetime
+from hashids import Hashids
+import flask.ext.whooshalchemy as whooshalchemy
 
 
 
@@ -35,6 +38,9 @@ app.config['MAIL_PORT'] = 465
 app.config['MAIL_USE_SSL'] = True
 app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+
+app.config['WHOOSH_BASE'] = os.path.join(basedir, 'search.db')
+MAX_SEARCH_RESULTS = 50
 
 manager = Manager(app)
 db = SQLAlchemy(app)
@@ -56,6 +62,10 @@ login_manager.init_app(app)
 def load_user(user_id):
     return Student.query.get(int(user_id))
 
+hashids = Hashids(alphabet='abcdefghijklmnopqrstuvwxyz1234567890')
+BLACKLIST = ['complete', 'request', 'search', 'new', 'settings', 'reset', 
+             'confirm', 'unconfirmed', 'login', 'signup']
+
 
 
 # Models
@@ -65,9 +75,13 @@ taggers = db.Table('taggers',
         db.Column('project_id', db.Integer, db.ForeignKey('projects.id')),
         db.Column('student_id', db.Integer, db.ForeignKey('students.id')))
 
-j_students = db.Table('j_students',
-        db.Column('student_id', db.Integer, db.ForeignKey('students.id')),
-        db.Column('project_id', db.Integer, db.ForeignKey('projects.id')))
+j_projects = db.Table('j_projects',
+        db.Column('project_id', db.Integer, db.ForeignKey('projects.id')),
+        db.Column('student_id', db.Integer, db.ForeignKey('students.id')))
+
+r_projects = db.Table('r_projects',
+        db.Column('project_id', db.Integer, db.ForeignKey('projects.id')),
+        db.Column('student_id', db.Integer, db.ForeignKey('students.id')))
 
 
 class School(db.Model):
@@ -86,6 +100,8 @@ class School(db.Model):
 
 class Student(UserMixin, db.Model):
     __tablename__ = 'students'
+    __searchable__ = ['name', 'username', 'description']
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
     username = db.Column(db.String(64))
@@ -93,13 +109,10 @@ class Student(UserMixin, db.Model):
     website = db.Column(db.String(64))
     description = db.Column(db.Text())
     confirmed = db.Column(db.Boolean, default=False)
+    time_joined = db.Column(db.DateTime)
 
     school_id = db.Column(db.Integer, db.ForeignKey('schools.id'))
     projects = db.relationship('Project', backref='student', lazy='dynamic')
-
-    j_projects = db.relationship('Project', secondary=j_students,
-                            backref=db.backref('j_students', lazy='dynamic'),
-                            lazy='dynamic')
 
     password_hash = db.Column(db.String(128))
 
@@ -152,14 +165,25 @@ class Student(UserMixin, db.Model):
 
 class Project(db.Model):
     __tablename__ = 'projects'
+    __searchable__ = ['name', 'description', 'website']
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
+    website = db.Column(db.String(64))
     description = db.Column(db.Text())
     time_posted = db.Column(db.DateTime)
     complete = db.Column(db.Boolean, default=False)
+    hashid = db.Column(db.String(32))
 
     school_id = db.Column(db.Integer, db.ForeignKey('schools.id'))
     student_id = db.Column(db.Integer, db.ForeignKey('students.id'))
+
+    j_students = db.relationship('Student', secondary=j_projects,
+                               backref=db.backref('j_projects', lazy='dynamic'),
+                               lazy='dynamic')
+    r_students = db.relationship('Student', secondary=r_projects,
+                               backref=db.backref('r_projects', lazy='dynamic'),
+                               lazy='dynamic')
 
     def __repr__(self):
         return '<Project %r>' % self.name
@@ -180,6 +204,13 @@ class Tag(db.Model):
 
     def __repr__(self):
         return '<Tag %r>' % self.name
+
+
+
+# Whoosh
+
+whooshalchemy.whoosh_index(app, Student)
+whooshalchemy.whoosh_index(app, Project)
 
 
 
@@ -214,7 +245,8 @@ class LoginForm(Form):
 
 class SignupForm(Form):
     name = StringField('Name', 
-                    validators=[Required(message='Your name is required.')])
+                       validators=[Required(message='Your name is required.'),
+                       Length(1, 64)])
     email = StringField('Email', 
             validators=[Required(message='Your email address is required.'),
                         Length(1, 64), 
@@ -234,7 +266,9 @@ not School.query.filter_by(email_domain=field.data.split('@')[1]).first() \
 
 class ProjectForm(Form):
     name = StringField('Name', 
-                        validators=[Required(message='A name is required.')])
+                       validators=[Required(message='A name is required.'),
+                       Length(1, 64)])
+    website = StringField('Website')
     description = StringField('Description', 
                 validators=[Required(message='A description is required.')])
     tags = TagListField('Tags')
@@ -244,7 +278,8 @@ class ProjectForm(Form):
 
 class StudentForm(Form):
     name = StringField('Name', 
-                    validators=[Required(message='Your name is required.')])
+                       validators=[Required(message='Your name is required.'),
+                       Length(1, 64)])
     website = StringField('Website')
     description = StringField('Description')
     tags = TagListField('Tags')
@@ -296,6 +331,10 @@ class ResetForm(Form):
     new_password = PasswordField('New password', 
             validators=[Required(message='Your new password is required.')])
     submit = SubmitField('Reset password')
+
+
+class SearchForm(Form):
+    query = StringField('Query', validators=[Required()])
 
 
 
@@ -355,10 +394,24 @@ def before_request():
         return redirect(url_for('unconfirmed'))
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
     if current_user.is_authenticated():
-        return render_template('dashboard.html', school=current_user.school)
+        search_form = SearchForm()
+        if search_form.validate_on_submit():
+            return redirect(url_for('search', query=search_form.query.data))
+        incoming_requests = []
+        for project in Project.query.filter_by(student=current_user,
+        complete=False).all():
+            for student in project.r_students:
+                incoming_requests.append((project, student))
+        outgoing_requests = current_user.r_projects.all()
+        active_projects = Project.query.filter_by(student=current_user,
+        complete=False).all() + current_user.j_projects.all()
+        return render_template('dashboard.html', search_form=search_form, 
+                               incoming_requests=incoming_requests,
+                               outgoing_requests=outgoing_requests,
+                               active_projects=active_projects)
     schools = School.query.all()
     return render_template('index.html', schools=schools)
 
@@ -373,9 +426,14 @@ def signup():
         school = \
         School.query.filter_by(email_domain= \
                                form.email.data.split('@')[1]).first()
+        username = form.email.data.split('@')[0]
+        if username in BLACKLIST:
+            flash('GET OUT OF HERE!')
+            return redirect(url_for('index'))
         student = Student(name=form.name.data,
-                          username=form.email.data.split('@')[0],
+                          username=username,
                           email=form.email.data,
+                          time_joined=datetime.now(),
                           password=form.password.data,
                           school=school)
         db.session.add(student)
@@ -474,12 +532,13 @@ def logout():
     return redirect(url_for('index'))
 
 
-@app.route('/settings')
+@app.route('/settings', methods=['GET', 'POST'])
 @login_required
 def settings():
-    profile_form = StudentForm(obj=student)
-    password_form = PasswordForm()
-    delete_form = DeleteForm()
+    search_form = SearchForm()
+    if search_form.validate_on_submit():
+        return redirect(url_for('search', query=search_form.query.data))
+    profile_form = StudentForm(obj=current_user)
     if profile_form.validate_on_submit():
         current_user.name = profile_form.name.data
         current_user.website = profile_form.website.data
@@ -489,11 +548,13 @@ def settings():
         db.session.add(current_user)
         db.session.commit()
         flash('Profile updated successfully')
+    password_form = PasswordForm()
     if password_form.validate_on_submit():
         current_user.password = password_form.new_password.data
         db.session.add(current_user)
         db.session.commit()
         flash('Password updated successfully')
+    delete_form = DeleteForm()
     if delete_form.validate_on_submit():
         deadman = current_user
         logout_user()
@@ -505,83 +566,108 @@ def settings():
         return redirect(url_for('index'))
     return render_template('settings.html', profile_form=profile_form, 
                            password_form=password_form, 
-                           delete_form=delete_form)
+                           delete_form=delete_form,
+                           search_form=search_form)
 
 
-@app.route('/tags')
+@app.route('/tags', methods=['GET', 'POST'])
 def tags():
     tags = Tag.query.all()
-    render_template('tags.html', tags=tags)
+    search_form = SearchForm()
+    render_template('tags.html', tags=tags, search_form=search_form)
 
 
-@app.route('/<shortname_username>')
+@app.route('/<shortname_username>', methods=['GET', 'POST'])
 def school_student(shortname_username):
     if current_user.is_authenticated():
+        search_form = SearchForm()
+        if search_form.validate_on_submit():
+            return redirect(url_for('search', query=search_form.query.data))
         student =  finder(shortname_username, 'student', current_user.school)
-        return render_template('student.html', student=student)
+        incomplete_projects = Project.query.filter_by(student=student, 
+                                                      complete=False)
+        complete_projects = Project.query.filter_by(student=student, 
+                                                    complete=True)
+        return render_template('student.html', student=student, 
+                               search_form=search_form,
+                               incomplete_projects=incomplete_projects,
+                               complete_projects=complete_projects)
     school = finder(shortname_username, 'school')
     #projects = sample(school.projects.filter_by(complete=False).all(), 3)
     projects = school.projects.filter_by(complete=False).all()
-    return render_template('public_school.html', school=school, 
+    return render_template('school.html', school=school, 
                            projects=projects)
 
 
-@app.route('/<student_username>/<project_id>')
+@app.route('/<student_username>/<project_hashid>', methods=['GET', 'POST'])
 @login_required
-def project(student_username, project_id):
+def project(student_username, project_hashid):
     student =  finder(student_username, 'student', current_user.school)
-    project = finder(project_id, 'project')
+    project = finder(hashids.decode(project_hashid), 'project')
     if project.student is student:
-        return render_template('project.html', project=project)
+        search_form = SearchForm()
+        if search_form.validate_on_submit():
+            return redirect(url_for('search', query=search_form.query.data))
+        return render_template('project.html', project=project,
+                               search_form=search_form)
     abort(404)
 
 
-@app.route('/<student_username>/<project_id>/edit', 
+@app.route('/<student_username>/<project_hashid>/edit', 
            methods=['GET', 'POST'])
 @login_required
-def edit(student_username, project_id):
+def edit(student_username, project_hashid):
     student =  finder(student_username, 'student', current_user.school)
-    project = finder(project_id, 'project')
+    project = finder(hashids.decode(project_hashid), 'project')
     if project.student is student:
         if current_user == student:
-            form = ProjectForm(obj=project)
-            if form.validate_on_submit():
+            search_form = SearchForm()
+            if search_form.validate_on_submit():
+                return redirect(url_for('search', query=search_form.query.data))
+            project_form = ProjectForm(obj=project)
+            if project_form.validate_on_submit():
                 project.name = form.name.data
+                project.website = form.website.data
                 project.description = form.description.data
                 project.tags = [finder(tag, 'tag') for tag in form.tags.data]
                 db.session.add(project)
                 db.session.commit()
                 flash('Project updated successfully')
-            return render_template('edit.html', form=form)
+            return render_template('edit.html', project_form=project_form, 
+                                   search_form=search_form)
         return redirect(url_for('project', student_username=student_username,
-                                project_id=project_id))
+                                project_hashid=project_hashid))
     abort(404)
 
 
-@app.route('/<student_username>/<project_id>/delete', 
+@app.route('/<student_username>/<project_hashid>/delete', 
            methods=['POST'])
 @login_required
-def delete(student_username, project_id):
-    student =  finder(student_username, 'student', current_user.school)
-    project = finder(project_id, 'project')
+def delete(student_username, project_hashid):
+    student = finder(student_username, 'student', current_user.school)
+    project = finder(hashids.decode(project_hashid), 'project')
     if project.student is student:
         if current_user == student:
             db.session.delete(project)
             db.session.commit()
             flash('Project deleted successfully')
-            return redirect(url_for('school', 
-                                    school_shortname=student.school.shortname))
+            return redirect(url_for('school_student', 
+                                shortname_username=student.school.shortname))
         return redirect(url_for('project', student_username=student_username,
-                                project_id=project_id))
+                                project_hashid=project_hashid))
     abort(404)
 
 
 @app.route('/new', methods=['GET', 'POST'])
 @login_required
 def new():
-    form = ProjectForm()
-    if form.validate_on_submit():
+    search_form = SearchForm()
+    if search_form.validate_on_submit():
+        return redirect(url_for('search', query=search_form.query.data))
+    project_form = ProjectForm()
+    if project_form.validate_on_submit():
         project = Project(name=form.name.data,
+                          website=form.website.data,
                           description=form.description.data,
                           time_posted=datetime.now(),
                           student=current_user,
@@ -589,9 +675,81 @@ def new():
                           tags=[finder(tag, 'tag') for tag in form.tags.data])
         db.session.add(project)
         db.session.commit()
-        return redirect(url_for('project', project_id=project.id))
-    return render_template('new.html', form=form)
+        Project.query.get(project.id).hashid = hashids.encode(project.id)
+        db.session.commit()
+        return redirect(url_for('project', 
+                                student_username=current_user.username,
+                                project_hashid=project.hashid))
+    return render_template('new.html', project_form=project_form, 
+                           search_form=search_form)
 
+
+@app.route('/search/<query>', methods=['GET', 'POST'])
+@login_required
+def search(query):
+    search_form = SearchForm()
+    if search_form.validate_on_submit():
+        return redirect(url_for('search', query=search_form.query.data))
+    student_results = Student.query.whoosh_search(query, MAX_SEARCH_RESULTS).\
+                      filter_by(confirmed=True).all()
+    project_results = Project.query.whoosh_search(query, MAX_SEARCH_RESULTS).\
+                      filter_by(complete=False).all()
+    return render_template('search.html', query=query, 
+                           student_results=student_results,
+                           project_results=project_results,
+                           search_form = SearchForm())
+
+
+@app.route('/request/<student_username>/<project_hashid>/<type>', 
+           methods=['GET'])
+@login_required
+def rj_request(student_username, project_hashid, type):
+    student = finder(student_username, 'student', current_user.school)
+    project = finder(hashids.decode(project_hashid), 'project')
+    if type == 'r_append' and \
+       current_user == student and \
+       project not in student.r_projects and \
+       project not in student.j_projects and \
+       not project.complete:
+        student.r_projects.append(project)
+    elif type == 'r_remove' and \
+         ((current_user == student) or (current_user == project.student)) and \
+         project in student.r_projects and \
+         project not in student.j_projects and \
+         not project.complete:
+        student.r_projects.remove(project)
+    elif type == 'j_append' and \
+         current_user == project.student and \
+         project in student.r_projects and \
+         project not in student.j_projects and \
+         not project.complete:
+        student.r_projects.remove(project)
+        student.j_projects.append(project)
+    elif type == 'j_remove' and \
+         ((current_user == student) or (current_user == project.student)) and \
+         project in student.j_projects and \
+         project not in student.r_projects and \
+         not project.complete:
+        student.j_projects.remove(project)
+    else:
+        abort(400)
+    db.session.commit()
+    return redirect(request.referrer)
+
+
+@app.route('/complete/<project_hashid>', methods=['GET'])
+@login_required
+def complete(project_hashid):
+    project = finder(hashids.decode(project_hashid), 'project')
+    if current_user == project.student and not project.complete:
+        project.complete = True
+        project.r_students = []
+        db.session.commit()
+        return redirect(url_for('project', 
+                        student_username=current_user.username,
+                        project_hashid=project.hashid))
+    else:
+        abort(400)
 
 
 if __name__ == '__main__':

@@ -1,0 +1,42 @@
+{% extends "authenticated.html" %}
+{% block title %}{{ project.name }}{% endblock %}
+{% block batwing %}
+    <div id="project">
+        <div class="p_name"><a href="{{ url_for('school_student', shortname_username=project.student.username) }}">{{ project.student.name }}</a> / {{ project.name }}</div>
+
+        {% if project.complete %}
+            <div class="p_completed">Completed</div>
+        {% elif project.student == current_user %}
+            <a href="{{ url_for('edit', student_username=current_user.username, project_hashid=project.hashid) }}"><div class="p_editor">Edit</div></a><a href="{{ url_for('complete', project_hashid=project.hashid) }}"><div class="p_editor p_done">Mark completed</div></a>
+        {% elif project in current_user.r_projects %}
+            <a href="{{ url_for('rj_request', student_username=current_user.username, project_hashid=project.hashid, type='r_remove') }}"><div class="p_editor">Cancel request to join</div></a>
+        {% elif project in current_user.j_projects %}
+            <a href="{{ url_for('rj_request', student_username=current_user.username, project_hashid=project.hashid, type='j_remove') }}"><div class="p_editor">Leave project</div></a>
+        {% else %}
+            <a href="{{ url_for('rj_request', student_username=current_user.username, project_hashid=project.hashid, type='r_append') }}"><div class="p_editor">Request to join</div></a>
+        {% endif %}
+
+        <div class="p_time">Created {{ project.time_posted.strftime('%B %-d, %Y at %-I:%M %p') }}</div>
+        <div class="p_description">{{ project.description }}</div>
+        
+        {% if project.student == current_user %}
+            {% if project.r_students.count() > 0 %}
+                <div class="p_students">
+                    <div class="dash_title">{{ project.r_students.count() }} request{% if project.r_students.count() != 1 %}s{% endif %}</div>
+                    {% for student in project.r_students %}
+                        <div class="response"><a href="{{ url_for('rj_request', student_username=student.username, project_hashid=project.hashid, type='j_append') }}"><span class="octicon octicon-check"></span></a><a href="{{ url_for('rj_request', student_username=student.username, project_hashid=project.hashid, type='r_remove') }}"><span class="octicon octicon-x"></span></a></div><div class="dash_li"><a href="{{ url_for('school_student', shortname_username=student.username) }}">{{ student.name }}</a></div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            {% if project.j_students.count() > 0 %}
+                <div class="p_students">
+                    <div class="dash_title">{{ project.j_students.count() }} collaborator{% if project.j_students.count() != 1 %}s{% endif %}</div>
+                    {% for student in project.j_students %}
+                        <div class="response">{% if project.complete %}<span class="octicon octicon-chevron-right"></span>{% else %}<a href="{{ url_for('rj_request', student_username=student.username, project_hashid=project.hashid, type='j_remove') }}"><span class="octicon octicon-x"></span></a>{% endif %}</div><div class="dash_li"><a href="{{ url_for('school_student', shortname_username=student.username) }}">{{ student.name }}</a></div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+{% endblock %}

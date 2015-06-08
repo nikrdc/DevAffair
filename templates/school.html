@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ school.name }}{% endblock %}
+{% block body %}
+    <div id="navbar">
+    	<div id="navbar_cramped">
+    		<a id="logo_link" href="{{ url_for('index') }}">
+        		<img id="logo" src="{{ url_for('static', filename='logo.png') }}">
+        	</a>
+    		<div id="entry_buttons">
+				<div class="entry_button" id="signup_button"><a href="{{ url_for('signup') }}">Sign up</a></div>
+            	<div class="entry_button" id="login_button"><a href="{{ url_for('login') }}">Log in</a></div>
+            </div>
+    	</div>
+    </div>
+
+    <div id="school_hero">
+    	<div class="mini_title">{{ school.name }}</div>
+        <div class="subtitle">{{ school.students.count() }} students <span class="octicon octicon-primitive-dot"></span> {{ school.projects.count() }} projects</div>
+    </div>
+    
+    <div id="projects">
+        {% for project in projects %}
+        	<div class="public_project">
+        		<div class="p_name">{{ project.name }}</div>
+                <div class="p_time">{{ project.time_posted.strftime('%B %-d, %Y at %-I:%M %p') }}</div>
+        		<div class="p_description">{{ project.description }}</div>
+                <div class="p_tags">
+                    {% for tag in project.tags %}
+                        <a class="p_tag">{{ tag.name }}</a>
+                    {% endfor %}
+                </div>
+        	</div>
+        {% endfor %}
+    <div id="projects">
+{% endblock %}

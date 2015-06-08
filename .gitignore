@@ -3,3 +3,4 @@ venv
 *.pyc
 data.sqlite
 sitemap.txt
+search.db

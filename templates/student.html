@@ -1,0 +1,30 @@
+{% extends "authenticated.html" %}
+{% block title %}{{ student.name }}{% endblock %}
+{% block batwing %}
+    <div id="student">
+        <div class="s_name">{{ student.name }}{% if student.website %} / <a href="{{ ''.join(['http://', student.website]) }}">{{ student.website }}</a>{% endif %}</div>
+        {% if student == current_user %}
+            <a href="{{ url_for('settings') }}"><div class="p_editor">Edit</div></a>
+        {% endif %}
+        <div class="s_time">Joined {{ student.time_joined.strftime('%B %-d, %Y at %-I:%M %p') }}</div>
+        <div class="s_description">{{ student.description }}</div>
+        
+        {% if incomplete_projects.count() > 0 %}
+            <div class="p_students">
+                <div class="dash_title">{{ incomplete_projects.count() }} active project{% if incomplete_projects.count() != 1 %}s{% endif %}</div>
+                {% for project in incomplete_projects %}
+                    <div class="response"><span class="octicon octicon-chevron-right"></span></div><div class="dash_li"><a href="{{ url_for('project', student_username=student.username, project_hashid=project.hashid) }}">{{ project.name }}</a></div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {% if complete_projects.count() > 0 %}
+            <div class="p_students">
+                <div class="dash_title">{{ complete_projects.count() }} complete project{% if complete_projects.count() != 1 %}s{% endif %}</div>
+                {% for project in complete_projects %}
+                    <div class="response"><span class="octicon octicon-chevron-right"></span></div><div class="dash_li"><a href="{{ url_for('project', student_username=student.username, project_hashid=project.hashid) }}">{{ project.name }}</a></div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
