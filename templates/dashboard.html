@@ -1,6 +1,14 @@
 {% extends "authenticated.html" %}
 {% block title %}DevAffair{% endblock %}
 {% block batwing %}
+    {% if get_flashed_messages() %}
+        <div class="flash">
+            {% for message in get_flashed_messages() %}
+                {{ message }}
+            {% endfor %}
+        </div>
+    {% endif %}
+    
     {% if incoming_requests or outgoing_requests or active_projects %}
         <div id="dash">
             {% if incoming_requests or outgoing_requests %}

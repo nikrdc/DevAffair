@@ -1,0 +1,9 @@
+Dear {{ student.name }},
+
+Your account at DevAffair has been deleted!
+
+Sincerely,
+
+The DevAffair Team
+
+Note: replies to this email address are not monitored.

@@ -8,8 +8,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask.ext.login import UserMixin, LoginManager, current_user, \
                             login_required, login_user, logout_user
 from flask.ext.wtf import Form
-from wtforms import Field, StringField, PasswordField, BooleanField, \
-                    SubmitField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, \
+                    TextAreaField
 from wtforms.widgets import TextInput
 from wtforms.validators import Length, Required, Email, ValidationError
 from flask.ext.mail import Mail, Message
@@ -49,7 +49,7 @@ mail = Mail(app)
 
 def make_shell_context():
     return dict(app=app, db=db, School=School, Student=Student, 
-                Project=Project, Tag=Tag)
+                Project=Project)
 manager.add_command("shell", Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
 
@@ -69,11 +69,6 @@ BLACKLIST = ['complete', 'request', 'search', 'new', 'settings', 'reset',
 
 
 # Models
-
-taggers = db.Table('taggers',
-        db.Column('tag_id', db.Integer, db.ForeignKey('tags.id')),
-        db.Column('project_id', db.Integer, db.ForeignKey('projects.id')),
-        db.Column('student_id', db.Integer, db.ForeignKey('students.id')))
 
 j_projects = db.Table('j_projects',
         db.Column('project_id', db.Integer, db.ForeignKey('projects.id')),
@@ -100,7 +95,7 @@ class School(db.Model):
 
 class Student(UserMixin, db.Model):
     __tablename__ = 'students'
-    __searchable__ = ['name', 'username', 'description']
+    __searchable__ = ['name', 'username', 'description', 'website']
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
@@ -189,45 +184,11 @@ class Project(db.Model):
         return '<Project %r>' % self.name
 
 
-class Tag(db.Model):
-    __tablename__ = 'tags'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(64), unique=True)
-    description = db.Column(db.Text())
-
-    projects = db.relationship('Project', secondary=taggers,
-                               backref=db.backref('tags', lazy='dynamic'),
-                               lazy='dynamic')
-    students = db.relationship('Student', secondary=taggers,
-                               backref=db.backref('tags', lazy='dynamic'),
-                               lazy='dynamic')
-
-    def __repr__(self):
-        return '<Tag %r>' % self.name
-
-
 
 # Whoosh
 
 whooshalchemy.whoosh_index(app, Student)
 whooshalchemy.whoosh_index(app, Project)
-
-
-
-# Fields
-
-class TagListField(Field):
-    widget = TextInput()
-
-    def _value(self):
-        if self.data:
-            return u' '.join(self.data)
-        return u''
-
-    def process_formatdata(self, valuelist):
-        if valuelist:
-            self.data = [tag for tag in valuelist[0].split(' ')]
-    # edit as needed once site renders on browser
 
 
 
@@ -269,11 +230,9 @@ class ProjectForm(Form):
                        validators=[Required(message='A name is required.'),
                        Length(1, 64)])
     website = StringField('Website')
-    description = StringField('Description', 
-                validators=[Required(message='A description is required.')])
-    tags = TagListField('Tags')
-    create = SubmitField('Create')
-    update = SubmitField('Update')
+    description = TextAreaField('Description', 
+                  validators=[Required(message='A description is required.')])
+    submit = SubmitField('Submit')
 
 
 class StudentForm(Form):
@@ -281,8 +240,7 @@ class StudentForm(Form):
                        validators=[Required(message='Your name is required.'),
                        Length(1, 64)])
     website = StringField('Website')
-    description = StringField('Description')
-    tags = TagListField('Tags')
+    description = TextAreaField('Description')   
     submit = SubmitField('Update profile')
 
 
@@ -296,7 +254,7 @@ class PasswordForm(Form):
 
     new_password = PasswordField('New password', 
             validators=[Required(message='Your new password is required.')])
-    submit = SubmitField('Update password')
+    submit = SubmitField('Change password')
 
 
 class DeleteForm(Form):
@@ -320,7 +278,7 @@ class RequestResetForm(Form):
         if Student.query.filter_by(email=field.data).first() is None:
             raise ValidationError('This email address is unknown.')
 
-    submit = SubmitField('Submit request')
+    submit = SubmitField('Submit')
 
 
 class ResetForm(Form):
@@ -330,11 +288,12 @@ class ResetForm(Form):
                         Email(message='This email address is invalid.')])
     new_password = PasswordField('New password', 
             validators=[Required(message='Your new password is required.')])
-    submit = SubmitField('Reset password')
+    submit = SubmitField('Change password')
 
 
 class SearchForm(Form):
     query = StringField('Query', validators=[Required()])
+    submit = SubmitField('Search')
 
 
 
@@ -360,8 +319,6 @@ def finder(key, type, key2=None):
                abort(404)
     if type == 'project':
         return Project.query.get(key) or abort(404)
-    if type == 'tag':
-        return Tag.query.filter_by(name=key).first_or_404()
     abort(404)
 
 
@@ -374,10 +331,9 @@ def send_async_email(app, msg):
 
 
 def send_email(to, subject, template, **kwargs):
-    msg = Message('DevAffair: ' + subject, sender = 'DevAffair', 
+    msg = Message('DevAffair: ' + subject, sender = 'The DevAffair Team', 
                   recipients = [to])
     msg.body = render_template(template + '.txt', **kwargs)
-    msg.html = render_template(template + '.html', **kwargs)
     thr = Thread(target = send_async_email, args = [app, msg])
     thr.start()
     return thr
@@ -440,10 +396,8 @@ def signup():
         db.session.commit()
         login_user(student)
         token = student.generate_confirmation_token()
-        '''
-        send_email(student.email, 'Confirm your account', 'mail/confirm', 
+        send_email(student.email, 'confirm your account', 'mail/confirm', 
                    student=student, token=token)
-        '''
         flash('A confirmation email has been sent to you by email.')
         return redirect(url_for('index'))
     return render_template('signup.html', form=form)
@@ -480,10 +434,11 @@ def reconfirm():
         flash('You have already confirmed your account!')
         return redirect(url_for('index'))
     token = current_user.generate_confirmation_token()
-    send_email(student.email, 'Confirm your account', 'mail/confirm', 
-               student=student, token=token)
+    send_email(current_user.email, 'confirm your account', 'mail/confirm', 
+               student=current_user, token=token)
+    logout_user()
     flash('A new confirmation email has been sent to you by email.')
-    return redirect(url_for('unconfirmed'))
+    return redirect(url_for('index'))
 
 
 @app.route('/confirm/<token>')
@@ -493,7 +448,7 @@ def confirm(token):
         flash('You have already confirmed your account!')
         return redirect(url_for('index'))
     elif current_user.confirm(token):
-        flash('Account confirmed successfully')
+        flash('Account successfully confirmed')
         return redirect(url_for('index'))
     flash('The confirmation link is invalid or has expired.')
     return redirect(url_for('unconfirmed'))
@@ -505,7 +460,7 @@ def request_reset():
     if form.validate_on_submit():
         student = Student.query.filter_by(email=form.email.data).first()
         token = student.generate_reset_token()
-        send_email(student.email, 'Reset your password', 'mail/reset',
+        send_email(student.email, 'reset your password', 'mail/reset',
                    student=student, token=token, next=request.args.get('next'))
         flash('An email with instructions to reset your password has been \
               sent to you.')
@@ -536,45 +491,56 @@ def logout():
 @login_required
 def settings():
     search_form = SearchForm()
-    if search_form.validate_on_submit():
-        return redirect(url_for('search', query=search_form.query.data))
     profile_form = StudentForm(obj=current_user)
-    if profile_form.validate_on_submit():
-        current_user.name = profile_form.name.data
-        current_user.website = profile_form.website.data
-        current_user.description = profile_form.description.data
-        current_user.tags = \
-                        [finder(tag, 'tag') for tag in profile_form.tags.data]
-        db.session.add(current_user)
-        db.session.commit()
-        flash('Profile updated successfully')
     password_form = PasswordForm()
-    if password_form.validate_on_submit():
-        current_user.password = password_form.new_password.data
-        db.session.add(current_user)
-        db.session.commit()
-        flash('Password updated successfully')
     delete_form = DeleteForm()
-    if delete_form.validate_on_submit():
-        deadman = current_user
-        logout_user()
-        db.session.delete(deadman)
-        db.session.commit()
-        send_email(deadman.email, 'Account deleted', 'mail/deleted', 
-                   student=deadman)
-        flash('Account deleted successfully')
-        return redirect(url_for('index'))
-    return render_template('settings.html', profile_form=profile_form, 
+    if request.form:
+        submit_val = request.form['submit']
+        if submit_val == 'Search':
+            if search_form.validate_on_submit():
+                return redirect(url_for('search', query=search_form.query.data))
+            else:
+                profile_form.name.data = current_user.name
+                profile_form.website.data = current_user.website
+                profile_form.description.data = current_user.description
+        elif submit_val ==  'Update profile':
+            if profile_form.validate_on_submit():
+                current_user.name = profile_form.name.data
+                current_user.website = profile_form.website.data
+                current_user.description = profile_form.description.data
+                db.session.commit()
+                flash('Profile updated successfully')
+        elif submit_val == 'Change password':
+            if password_form.validate_on_submit():
+                current_user.password = password_form.new_password.data
+                db.session.commit()
+                flash('Password updated successfully')
+            profile_form.name.data = current_user.name
+            profile_form.website.data = current_user.website
+            profile_form.description.data = current_user.description
+        elif submit_val == 'Delete account':
+            if delete_form.validate_on_submit():
+                deadman = finder(current_user.username, 'student', 
+                                 current_user.school)
+                for project in deadman.projects:
+                    db.session.delete(project)
+                logout_user()
+                db.session.delete(deadman)
+                db.session.commit()
+                send_email(deadman.email, 'account deleted', 'mail/deleted', 
+                           student=deadman)
+                flash('Account deleted successfully')
+                return redirect(url_for('index'))
+            else:
+                profile_form.name.data = current_user.name
+                profile_form.website.data = current_user.website
+                profile_form.description.data = current_user.description   
+    return render_template('settings.html', 
+                           profile_form=profile_form, 
                            password_form=password_form, 
                            delete_form=delete_form,
-                           search_form=search_form)
+                           search_form=search_form)            
 
-
-@app.route('/tags', methods=['GET', 'POST'])
-def tags():
-    tags = Tag.query.all()
-    search_form = SearchForm()
-    render_template('tags.html', tags=tags, search_form=search_form)
 
 
 @app.route('/<shortname_username>', methods=['GET', 'POST'])
@@ -613,46 +579,55 @@ def project(student_username, project_hashid):
     abort(404)
 
 
-@app.route('/<student_username>/<project_hashid>/edit', 
-           methods=['GET', 'POST'])
+@app.route('/<student_username>/<project_hashid>/edit', methods=['GET', 'POST'])
 @login_required
 def edit(student_username, project_hashid):
     student =  finder(student_username, 'student', current_user.school)
     project = finder(hashids.decode(project_hashid), 'project')
     if project.student is student:
-        if current_user == student:
+        if current_user == student and not project.complete:
             search_form = SearchForm()
-            if search_form.validate_on_submit():
-                return redirect(url_for('search', query=search_form.query.data))
             project_form = ProjectForm(obj=project)
-            if project_form.validate_on_submit():
-                project.name = form.name.data
-                project.website = form.website.data
-                project.description = form.description.data
-                project.tags = [finder(tag, 'tag') for tag in form.tags.data]
-                db.session.add(project)
-                db.session.commit()
-                flash('Project updated successfully')
-            return render_template('edit.html', project_form=project_form, 
+            if request.form:
+                submit_val = request.form['submit']
+                if submit_val == 'Search':
+                    if search_form.validate_on_submit():
+                        return redirect(url_for('search', query=search_form.query.data))
+                    else:
+                        project_form.name.data = project.name
+                        project_form.website.data = project.website
+                        project_form.description.data = project.description
+                elif submit_val == 'Update':
+                    if project_form.validate_on_submit():
+                        project.name = project_form.name.data
+                        project.website = project_form.website.data
+                        project.description = project_form.description.data
+                        db.session.commit()
+                        flash('Project updated successfully')
+                        return redirect(url_for('project', 
+                                                student_username=student_username,
+                                                project_hashid=project_hashid))
+            return render_template('edit.html', 
+                                   project=project,
+                                   project_form=project_form, 
                                    search_form=search_form)
-        return redirect(url_for('project', student_username=student_username,
+        return redirect(url_for('project', 
+                                student_username=student_username,
                                 project_hashid=project_hashid))
     abort(404)
 
 
-@app.route('/<student_username>/<project_hashid>/delete', 
-           methods=['POST'])
+@app.route('/<student_username>/<project_hashid>/delete', methods=['GET'])
 @login_required
 def delete(student_username, project_hashid):
     student = finder(student_username, 'student', current_user.school)
     project = finder(hashids.decode(project_hashid), 'project')
     if project.student is student:
-        if current_user == student:
+        if current_user == student and not project.complete:
             db.session.delete(project)
             db.session.commit()
             flash('Project deleted successfully')
-            return redirect(url_for('school_student', 
-                                shortname_username=student.school.shortname))
+            return redirect(url_for('index'))
         return redirect(url_for('project', student_username=student_username,
                                 project_hashid=project_hashid))
     abort(404)
@@ -665,19 +640,26 @@ def new():
     if search_form.validate_on_submit():
         return redirect(url_for('search', query=search_form.query.data))
     project_form = ProjectForm()
-    if project_form.validate_on_submit():
-        project = Project(name=form.name.data,
-                          website=form.website.data,
-                          description=form.description.data,
+    if request.form:
+        submit_val = request.form['submit']
+        if submit_val == 'Search':
+            if search_form.validate_on_submit():
+                return redirect(url_for('search', query=search_form.query.data))
+        elif submit_val == 'Create':
+            if project_form.validate_on_submit():
+                project = Project(name=project_form.name.data,
+                          website=project_form.website.data,
+                          description=project_form.description.data,
                           time_posted=datetime.now(),
                           student=current_user,
-                          school=current_user.school,
-                          tags=[finder(tag, 'tag') for tag in form.tags.data])
-        db.session.add(project)
-        db.session.commit()
-        Project.query.get(project.id).hashid = hashids.encode(project.id)
-        db.session.commit()
-        return redirect(url_for('project', 
+                          school=current_user.school)
+                db.session.add(project)
+                db.session.commit()
+                Project.query.get(project.id).hashid = \
+                hashids.encode(project.id)
+                db.session.commit()
+                flash('Project created successfully')
+                return redirect(url_for('project', 
                                 student_username=current_user.username,
                                 project_hashid=project.hashid))
     return render_template('new.html', project_form=project_form, 

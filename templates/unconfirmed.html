@@ -2,8 +2,16 @@
 {% block title %}Unconfirmed{% endblock %}
 {% block body %}
     <div class="external_form">
+    	{% if get_flashed_messages() %}
+	        <div class="flash unconf">
+	            {% for message in get_flashed_messages() %}
+	                {{ message }}
+	            {% endfor %}
+	        </div>
+	    {% endif %}
     	<div class="internal_form">
-    		You have not confirmed your email address yet. Please check {{ current_user.email }} for a confirmation email. If the 
+    		<div class="directions d_email">You have not confirmed your email address yet. Please check {{ current_user.email }} for a confirmation email. Click the button below if you would like us to send you another confirmation email.</div>
+    		<a href="{{ url_for('reconfirm') }}"><button class="d_button">Send another email</button></a>
     	</div>
     </div>
 {% endblock %}

@@ -1,6 +1,14 @@
 {% extends "authenticated.html" %}
 {% block title %}{{ project.name }}{% endblock %}
 {% block batwing %}
+    {% if get_flashed_messages() %}
+        <div class="flash">
+            {% for message in get_flashed_messages() %}
+                {{ message }}
+            {% endfor %}
+        </div>
+    {% endif %}
+    
     <div id="project">
         <div class="p_name"><a href="{{ url_for('school_student', shortname_username=project.student.username) }}">{{ project.student.name }}</a> / {{ project.name }}</div>
 
@@ -17,6 +25,7 @@
         {% endif %}
 
         <div class="p_time">Created {{ project.time_posted.strftime('%B %-d, %Y at %-I:%M %p') }}</div>
+        {% if project.website %}<div class="p_website"><a href="{{ ''.join(['http://', project.website]) }}">{{ project.website }}</a></div>{% endif %}
         <div class="p_description">{{ project.description }}</div>
         
         {% if project.student == current_user %}

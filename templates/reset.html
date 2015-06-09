@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Log in{% endblock %}
+{% block title %}Reset{% endblock %}
 {% block body %}
 	<div class="external_form">
         <div class="internal_form">
@@ -24,12 +24,16 @@
                     {% endfor %}
                 {% endif %}
 
-                {{ form.password.label }}<br>
-                {{ form.password() }}<br>
+                {{ form.new_password.label }}<br>
+                {{ form.new_password() }}<br>
+                {% if form.new_password.errors %}
+                    {% for error in form.new_password.errors %}
+                        <div class="error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
 
-                {{ form.submit() }}
+                {{ form.submit(class="d_button") }}
             </form>
-            <div id="forgot_link"><a href="{{ url_for('request_reset') }}">Forgot your password?</a></div>
         </div>
     </div>
 {% endblock %}

@@ -1,0 +1,11 @@
+Dear {{ student.name }},
+
+Sorry to hear you forgot your password! To reset your password please click on the following link:
+
+{{ url_for('reset', token=token, _external=True) }}
+
+Sincerely,
+
+The DevAffair Team
+
+Note: replies to this email address are not monitored.

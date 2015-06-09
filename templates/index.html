@@ -2,12 +2,19 @@
 {% block title %}DevAffair{% endblock %}
 {% block body %} 
     <div id="introduction">
+        {% if get_flashed_messages() %}
+            <div class="flash ind">
+                {% for message in get_flashed_messages() %}
+                    {{ message }}
+                {% endfor %}
+            </div>
+        {% endif %}
         <img id="logo" src="{{ url_for('static', filename='logo.png') }}">
         <div id="slogan">Connecting student groups with student developers</div>
         <div class="entry_button" id="signup_button"><a href="{{ url_for('signup') }}">Sign up</a></div>
         <div class="entry_button" id="login_button"><a href="{{ url_for('login') }}">Log in</a></div>
     </div>
-   
+
     <div id="how_it_works">
         <div class="mini_title">How it works</div>
         <div class="subtitle">Alice and Bob find each other on DevAffair.</div>

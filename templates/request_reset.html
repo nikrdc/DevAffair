@@ -1,18 +1,12 @@
 {% extends "base.html" %}
-{% block title %}Log in{% endblock %}
+{% block title %}Reset{% endblock %}
 {% block body %}
 	<div class="external_form">
         <div class="internal_form">
             <a href="{{ url_for('index') }}">
                 <img id="logo" src="{{ url_for('static', filename='logo.png') }}">
             </a>
-            {% if get_flashed_messages() %}
-                <div class="flash">
-                    {% for message in get_flashed_messages() %}
-                        {{ message }}
-                    {% endfor %}
-                </div>
-            {% endif %}
+            <div class="directions d_reset">Enter your email, click submit, and we'll send you a password reset link!</div>
             <form method="POST">
                 {{ form.csrf_token }}
 
@@ -24,12 +18,8 @@
                     {% endfor %}
                 {% endif %}
 
-                {{ form.password.label }}<br>
-                {{ form.password() }}<br>
-
                 {{ form.submit() }}
             </form>
-            <div id="forgot_link"><a href="{{ url_for('request_reset') }}">Forgot your password?</a></div>
         </div>
     </div>
 {% endblock %}
