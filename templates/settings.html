@@ -16,7 +16,7 @@
                 {{ profile_form.csrf_token }}
 
                 {{ profile_form.name.label }}
-                {{ profile_form.name() }}<br>
+                {{ profile_form.name(placeholder="Penelope Wiggums") }}<br>
                 {% if profile_form.name.errors %}
                     {% for error in profile_form.name.errors %}
                         <div class="error">{{ error }}</div>
@@ -24,7 +24,7 @@
                 {% endif %}
 
                 {{ profile_form.website.label }}
-                {{ profile_form.website() }}<br>
+                {{ profile_form.website(placeholder="http://zombo.com/") }}<br>
                 {% if profile_form.website.errors %}
                     {% for error in profile_form.website.errors %}
                         <div class="error">{{ error }}</div>

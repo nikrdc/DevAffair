@@ -15,7 +15,7 @@
             {{ project_form.csrf_token }}
 
             {{ project_form.name.label }}
-            {{ project_form.name() }}<br>
+            {{ project_form.name(placeholder="Batmobile") }}<br>
             {% if project_form.name.errors %}
                 {% for error in project_form.name.errors %}
                     <div class="error">{{ error }}</div>
@@ -23,7 +23,7 @@
             {% endif %}
 
             {{ project_form.website.label }}
-            {{ project_form.website() }}<br>
+            {{ project_form.website(placeholder="http://zombo.com/") }}<br>
             {% if project_form.website.errors %}
                 {% for error in project_form.website.errors %}
                     <div class="error">{{ error }}</div>

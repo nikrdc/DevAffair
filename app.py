@@ -11,7 +11,8 @@ from flask.ext.wtf import Form
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, \
                     TextAreaField
 from wtforms.widgets import TextInput
-from wtforms.validators import Length, Required, Email, ValidationError
+from wtforms.validators import Length, Required, Email, URL, Optional, \
+                               ValidationError
 from flask.ext.mail import Mail, Message
 from threading import Thread
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
@@ -229,7 +230,7 @@ class ProjectForm(Form):
     name = StringField('Name', 
                        validators=[Required(message='A name is required.'),
                        Length(1, 64)])
-    website = StringField('Website')
+    website = StringField('Website', validators=[URL(), Optional()])
     description = TextAreaField('Description', 
                   validators=[Required(message='A description is required.')])
     submit = SubmitField('Submit')
@@ -239,7 +240,7 @@ class StudentForm(Form):
     name = StringField('Name', 
                        validators=[Required(message='Your name is required.'),
                        Length(1, 64)])
-    website = StringField('Website')
+    website = StringField('Website', validators=[URL(), Optional()])
     description = TextAreaField('Description')   
     submit = SubmitField('Update profile')
 

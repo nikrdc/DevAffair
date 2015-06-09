@@ -768,7 +768,7 @@ label[for='description'] {
     border-radius: 2px;
     font-family: 'Verdana', sans-serif;
     font-size: 0.78rem;
-    margin: 4px 0 0 0;
+    margin: 4px 0 5px 0;
 }
 
 .edit_form input[type='text']:focus, textarea:focus, .edit_form input[type='password']:focus {
@@ -858,6 +858,34 @@ label[for='description'] {
 
 .ind {
     margin: 20px 0 30px 0 !important;
+}
+
+#delete_project {
+    width: 550px;
+    margin: 30px auto 0 auto;
+    display: block;
+    text-align: center;
+    padding: 4px 0 6px 0;
+    border: 1px solid #d10056;
+    vertical-align: middle;
+    border-radius: 2px;
+}
+
+#delete_link {
+    text-decoration: none;
+    color: #d10056;
+    font-family: 'Verdana', sans-serif;
+    font-size: 0.78rem;
+}
+
+#delete_project:hover {
+    color: #fdfdfd;
+    background-color: #d10056;
+    -webkit-transition: all 0.2s;
+       -moz-transition: all 0.2s;
+        -ms-transition: all 0.2s;
+         -o-transition: all 0.2s;
+            transition: all 0.2s;
 }
 
 

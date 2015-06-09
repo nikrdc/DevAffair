@@ -25,7 +25,7 @@
         {% endif %}
 
         <div class="p_time">Created {{ project.time_posted.strftime('%B %-d, %Y at %-I:%M %p') }}</div>
-        {% if project.website %}<div class="p_website"><a href="{{ ''.join(['http://', project.website]) }}">{{ project.website }}</a></div>{% endif %}
+        {% if project.website %}<div class="p_website"><a href="{{ project.website }}">{{ project.website }}</a></div>{% endif %}
         <div class="p_description">{{ project.description }}</div>
         
         {% if project.student == current_user %}

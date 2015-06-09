@@ -9,14 +9,14 @@
         </div>
     {% endif %}
 
-    <a id="delete_project" href="{{ url_for('delete', student_username=project.student.username, project_hashid=project.hashid) }}">Delete project</a>
+    <a id="delete_link" href="{{ url_for('delete', student_username=project.student.username, project_hashid=project.hashid) }}"><div id="delete_project">Delete project</div></a>
     <div class="edit_form">
         <div class="edit_form_title">Edit project</div>
         <form method="POST">
             {{ project_form.csrf_token }}
 
             {{ project_form.name.label }}
-            {{ project_form.name() }}<br>
+            {{ project_form.name(placeholder="Batmobile") }}<br>
             {% if project_form.name.errors %}
                 {% for error in project_form.name.errors %}
                     <div class="error">{{ error }}</div>
@@ -24,7 +24,7 @@
             {% endif %}
 
             {{ project_form.website.label }}
-            {{ project_form.website() }}<br>
+            {{ project_form.website(placeholder="http://zombo.com/") }}<br>
             {% if project_form.website.errors %}
                 {% for error in project_form.website.errors %}
                     <div class="error">{{ error }}</div>

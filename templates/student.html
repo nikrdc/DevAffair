@@ -16,7 +16,7 @@
             <a href="{{ url_for('settings') }}"><div class="p_editor">Edit</div></a>
         {% endif %}
         <div class="s_time">Joined {{ student.time_joined.strftime('%B %-d, %Y at %-I:%M %p') }}</div>
-        {% if student.website %}<div class="s_website"><a href="{{ ''.join(['http://', student.website]) }}">{{ student.website }}</a></div>{% endif %}
+        {% if student.website %}<div class="s_website"><a href="{{ student.website }}">{{ student.website }}</a></div>{% endif %}
         <div class="s_description">{% if student.description %}{{ student.description }}{% else %}This user hasn't added a description yet!{% endif %}</div>
         
         {% if incomplete_projects.count() > 0 %}
