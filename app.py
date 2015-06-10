@@ -65,8 +65,8 @@ def load_user(user_id):
 
 hashids = Hashids(alphabet='abcdefghijklmnopqrstuvwxyz1234567890')
 BLACKLIST = ['complete', 'request', 'search', 'new', 'settings', 'reset', 
-             'confirm', 'unconfirmed', 'login', 'signup']
-
+             'confirm', 'unconfirmed', 'login', 'signup', 'explore']
+POSTS_PER_PAGE = 1
 
 
 # Models
@@ -358,19 +358,40 @@ def index():
         if search_form.validate_on_submit():
             return redirect(url_for('search', query=search_form.query.data))
         incoming_requests = []
-        for project in Project.query.filter_by(student=current_user,
-        complete=False).all():
+        for project in Project.query.filter_by(student=current_user, 
+                                               complete=False).all():
             for student in project.r_students:
                 incoming_requests.append((project, student))
         outgoing_requests = current_user.r_projects.all()
-        active_projects = Project.query.filter_by(student=current_user,
-        complete=False).all() + current_user.j_projects.all()
-        return render_template('dashboard.html', search_form=search_form, 
+        active_projects = Project.query.filter_by(student=current_user, 
+                          complete=False).all() + current_user.j_projects.all()
+        explore_projects = Project.query.filter(Project.student!=current_user).\
+            filter_by(school=current_user.school, complete=False).\
+            order_by(Project.time_posted.desc()).\
+            paginate(1, POSTS_PER_PAGE, False)
+        return render_template('dashboard.html', 
+                               search_form=search_form, 
                                incoming_requests=incoming_requests,
                                outgoing_requests=outgoing_requests,
-                               active_projects=active_projects)
+                               active_projects=active_projects,
+                               explore_projects=explore_projects)
     schools = School.query.all()
     return render_template('index.html', schools=schools)
+
+
+@app.route('/explore/<int:page>', methods=['GET', 'POST'])
+@login_required
+def explore(page=2):
+    search_form = SearchForm()
+    if search_form.validate_on_submit():
+        return redirect(url_for('search', query=search_form.query.data))
+    explore_projects = Project.query.filter(Project.student!=current_user).\
+                       filter_by(school=current_user.school, complete=False).\
+                       order_by(Project.time_posted.desc()).\
+                       paginate(page, POSTS_PER_PAGE, False)
+    return render_template('explore.html', 
+                           search_form=search_form,
+                           explore_projects=explore_projects)
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -560,8 +581,7 @@ def school_student(shortname_username):
                                incomplete_projects=incomplete_projects,
                                complete_projects=complete_projects)
     school = finder(shortname_username, 'school')
-    #projects = sample(school.projects.filter_by(complete=False).all(), 3)
-    projects = school.projects.filter_by(complete=False).all()
+    projects = sample(school.projects.filter_by(complete=False).all(), 3)
     return render_template('school.html', school=school, 
                            projects=projects)
 

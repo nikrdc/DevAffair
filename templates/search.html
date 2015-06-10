@@ -30,7 +30,7 @@
                     <div id="student">
                         <div class="s_name"><a href="{{ url_for('school_student', shortname_username=student.username) }}">{{ student.name }}</a></div>
                         <div class="s_time">Joined {{ student.time_joined.strftime('%B %-d, %Y at %-I:%M %p') }}</div>
-                        {% if student.website %}<div class="s_website"><a href="{{ student.website }}">{{ student.website }}</a></div>{% endif %}
+                        <div class="s_website">{% if student.website %}<span class="octicon octicon-globe"></span>&nbsp;<a href="{{ student.website }}">{{ student.website }}</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endif %}<span class="octicon octicon-mail"></span>&nbsp;<a href="mailto:{{ student.email }}">{{ student.email }}</a></div>
                         <div class="s_description">{% if student.description %}{{ student.description }}{% else %}This user hasn't added a description yet!{% endif %}</div>
                     </div>
                 {% endfor %}

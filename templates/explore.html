@@ -1,0 +1,22 @@
+{% extends "authenticated.html" %}
+{% block title %}Explore{% endblock %}
+{% block batwing %}
+    <div id="breaker"></div>
+    <div id="explore">
+        <div class="dash_title">Explore {{ current_user.school.name }}</div>
+        <div class="dash_subtitle">{{ current_user.school.students.count() }} students <span class="octicon octicon-primitive-dot"></span> {{ current_user.school.projects.count() }} projects</div>
+        {% if explore_projects.items %}
+            {% for project in explore_projects.items %}
+                <div id="project" class="e_project">
+                    <div class="p_name"><a href="{{ url_for('project', student_username=project.student.username, project_hashid=project.hashid) }}">{{ project.name }}</a></div>
+                    <div class="p_time">Created {{ project.time_posted.strftime('%B %-d, %Y at %-I:%M %p') }}</div>
+                    {% if project.website %}<div class="p_website"><a href="{{ project.website }}">{{ project.website }}</a></div>{% endif %}
+                    <div class="p_description">{{ project.description }}</div>
+                </div>
+            {% endfor %}
+        {% endif %}
+        <div class="pagination">
+        {% if explore_projects.has_prev %}<a href="{{ url_for('explore', page=explore_projects.prev_num) }}">newer projects</a>{% else %}newer projects{% endif %}&nbsp;&nbsp;&nbsp;<span class="octicon octicon-primitive-dot"></span>&nbsp;&nbsp;&nbsp;{% if explore_projects.has_next %}<a href="{{ url_for('explore', page=explore_projects.next_num) }}">older projects</a>{% else %}older projects{% endif %}
+        </div>
+    </div>
+{% endblock %}

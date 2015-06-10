@@ -355,7 +355,7 @@ a.darken:hover img {
 
 #explore {
     width: 800px;
-    margin: -7px auto 55px auto;
+    margin: -7px auto 100px auto;
 }
 
 input[value="Search"] {
@@ -491,7 +491,7 @@ input[value="Search"] {
     font-family: 'Rokkitt', serif;
     font-size: 1.5rem;
     font-weight: 700;
-    margin: 20px 0 5px 0;
+    margin: 20px 0 15px 0;
     display: inline-block;
 }
 
@@ -567,6 +567,7 @@ input[value="Search"] {
     font-weight: 400;
     padding: 0 20px 21px 20px;
     font-family: 'Verdana', sans-serif;
+    line-height: 150%;
 }
 
 .p_name, .s_name {
@@ -886,6 +887,37 @@ label[for='description'] {
         -ms-transition: all 0.2s;
          -o-transition: all 0.2s;
             transition: all 0.2s;
+}
+
+.e_project {
+    margin: 15px auto !important;
+}
+
+.s_email {
+    display: inline-block;
+}
+
+.pagination {
+    width: 500px;
+    margin: 30px auto 0 auto;
+    text-align: center;
+    color: #e2e2e2;
+    font-family: 'Verdana', sans-serif;
+    font-size: 0.78rem;
+}
+
+.pagination .octicon-primitive-dot {
+    color: #313131;
+    font-size: 0.94rem;
+}
+
+.pagination a {
+    color: #d10056;
+    text-decoration: none;
+}
+
+.pagination a:hover {
+    text-decoration: underline;
 }
 
 
