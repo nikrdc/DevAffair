@@ -19,9 +19,8 @@ def migrate():
 
 def deploy():
     with cd('~/devaffair'):
-    	with shell_env(MAIL_USERNAME='dev@elephantsdontexist.com', MAIL_PASSWORD='hermione'):
-	        run('git pull origin master')
-	        dependencies()
-	        migrate()
+        run('git pull origin master')
+        dependencies()
+        migrate()
 
     run('touch /tmp/reload_devaffair')

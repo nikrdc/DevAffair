@@ -21,5 +21,7 @@ hashids==1.1.0
 itsdangerous==0.24
 paramiko==1.15.2
 pycrypto==2.6.1
+sendgrid==1.4.0
+smtpapi==0.2.0
 uWSGI==2.0.10
 wsgiref==0.1.2

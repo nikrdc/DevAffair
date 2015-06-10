@@ -20,6 +20,7 @@ from random import sample
 from datetime import datetime
 from hashids import Hashids
 import flask.ext.whooshalchemy as whooshalchemy
+import sendgrid
 
 
 
@@ -67,6 +68,9 @@ hashids = Hashids(alphabet='abcdefghijklmnopqrstuvwxyz1234567890')
 BLACKLIST = ['complete', 'request', 'search', 'new', 'settings', 'reset', 
              'confirm', 'unconfirmed', 'login', 'signup', 'explore']
 POSTS_PER_PAGE = 25
+
+sg = sendgrid.SendGridClient('nikrdc', '2EzHR42TJwuzZrTXS0eZ')
+
 
 
 # Models
@@ -422,8 +426,27 @@ def signup():
         db.session.commit()
         login_user(student)
         token = student.generate_confirmation_token()
+        '''
         send_email(student.email, 'confirm your account', 'mail/confirm', 
                    student=student, token=token)
+        '''
+        message = sendgrid.Mail()
+        message.set_from('dev@elephantsdontexist.com')
+        message.set_from_name('The DevAffair Team')
+        message.add_to(student.email)
+        message.add_to_name(student.name)
+        message.set_subject('DevAffair: confirm your account')
+        message.set_text("""
+            Dear """+student.name+""",
+
+            Welcome to DevAffair! To confirm your account please click on the following link:
+            
+            """+url_for('confirm', token=token, _external=True)+"""
+
+            Sincerely,
+
+            The DevAffair Team""")
+        status, msg = sg.send(message)
         flash('A confirmation email has been sent to you by email.')
         return redirect(url_for('index'))
     return render_template('signup.html', form=form)
@@ -460,8 +483,27 @@ def reconfirm():
         flash('You have already confirmed your account!')
         return redirect(url_for('index'))
     token = current_user.generate_confirmation_token()
+    """
     send_email(current_user.email, 'confirm your account', 'mail/confirm', 
                student=current_user, token=token)
+    """
+    message = sendgrid.Mail()
+    message.set_from('dev@elephantsdontexist.com')
+    message.set_from_name('The DevAffair Team')
+    message.add_to(current_user.email)
+    message.add_to_name(current_user.name)
+    message.set_subject('DevAffair: confirm your account')
+    message.set_text("""
+        Dear """+current_user.name+""",
+
+        Welcome to DevAffair! To confirm your account please click on the following link:
+        
+        """+url_for('confirm', token=token, _external=True)+"""
+
+        Sincerely,
+
+        The DevAffair Team""")
+    status, msg = sg.send(message)
     logout_user()
     flash('A new confirmation email has been sent to you by email.')
     return redirect(url_for('index'))
@@ -486,8 +528,27 @@ def request_reset():
     if form.validate_on_submit():
         student = Student.query.filter_by(email=form.email.data).first()
         token = student.generate_reset_token()
+        """
         send_email(student.email, 'reset your password', 'mail/reset',
                    student=student, token=token, next=request.args.get('next'))
+        """
+        message = sendgrid.Mail()
+        message.set_from('dev@elephantsdontexist.com')
+        message.set_from_name('The DevAffair Team')
+        message.add_to(student.email)
+        message.add_to_name(student.name)
+        message.set_subject('DevAffair: reset your password')
+        message.set_text("""
+            Dear """+student.name+""",
+
+            Sorry to hear you forgot your password! To reset your password please click on the following link:
+            
+            """+url_for('reset', token=token, _external=True)+"""
+
+            Sincerely,
+
+            The DevAffair Team""")
+        status, msg = sg.send(message)
         flash('An email with instructions to reset your password has been \
               sent to you.')
         return redirect(url_for('index'))
@@ -553,8 +614,25 @@ def settings():
                 logout_user()
                 db.session.delete(deadman)
                 db.session.commit()
+                """
                 send_email(deadman.email, 'account deleted', 'mail/deleted', 
                            student=deadman)
+                """
+                message = sendgrid.Mail()
+                message.set_from('dev@elephantsdontexist.com')
+                message.set_from_name('The DevAffair Team')
+                message.add_to(deadman.email)
+                message.add_to_name(deadman.name)
+                message.set_subject('DevAffair: account deleted')
+                message.set_text("""
+                    Dear """+deadman.name+""",
+
+                    Your account at DevAffair has been deleted!
+
+                    Sincerely,
+
+                    The DevAffair Team""")
+                status, msg = sg.send(message)
                 flash('Account deleted successfully')
                 return redirect(url_for('index'))
             else:
