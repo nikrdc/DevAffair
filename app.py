@@ -437,15 +437,15 @@ def signup():
         message.add_to_name(student.name)
         message.set_subject('DevAffair: confirm your account')
         message.set_text("""
-            Dear """+student.name+""",
+        Dear """+student.name+""",
 
-            Welcome to DevAffair! To confirm your account please click on the following link:
+        Welcome to DevAffair! To confirm your account please click on the following link:
             
-            """+url_for('confirm', token=token, _external=True)+"""
+        """+url_for('confirm', token=token, _external=True)+"""
 
-            Sincerely,
+        Sincerely,
 
-            The DevAffair Team""")
+        The DevAffair Team""")
         status, msg = sg.send(message)
         flash('A confirmation email has been sent to you by email.')
         return redirect(url_for('index'))
@@ -494,15 +494,15 @@ def reconfirm():
     message.add_to_name(current_user.name)
     message.set_subject('DevAffair: confirm your account')
     message.set_text("""
-        Dear """+current_user.name+""",
+    Dear """+current_user.name+""",
 
-        Welcome to DevAffair! To confirm your account please click on the following link:
+    Welcome to DevAffair! To confirm your account please click on the following link:
         
-        """+url_for('confirm', token=token, _external=True)+"""
+    """+url_for('confirm', token=token, _external=True)+"""
 
-        Sincerely,
+    Sincerely,
 
-        The DevAffair Team""")
+    The DevAffair Team""")
     status, msg = sg.send(message)
     logout_user()
     flash('A new confirmation email has been sent to you by email.')
@@ -539,15 +539,15 @@ def request_reset():
         message.add_to_name(student.name)
         message.set_subject('DevAffair: reset your password')
         message.set_text("""
-            Dear """+student.name+""",
+        Dear """+student.name+""",
 
-            Sorry to hear you forgot your password! To reset your password please click on the following link:
+        Sorry to hear you forgot your password! To reset your password please click on the following link:
             
-            """+url_for('reset', token=token, _external=True)+"""
+        """+url_for('reset', token=token, _external=True)+"""
 
-            Sincerely,
+        Sincerely,
 
-            The DevAffair Team""")
+        The DevAffair Team""")
         status, msg = sg.send(message)
         flash('An email with instructions to reset your password has been \
               sent to you.')
@@ -625,13 +625,13 @@ def settings():
                 message.add_to_name(deadman.name)
                 message.set_subject('DevAffair: account deleted')
                 message.set_text("""
-                    Dear """+deadman.name+""",
+                Dear """+deadman.name+""",
 
-                    Your account at DevAffair has been deleted!
+                Your account at DevAffair has been deleted!
 
-                    Sincerely,
+                Sincerely,
 
-                    The DevAffair Team""")
+                The DevAffair Team""")
                 status, msg = sg.send(message)
                 flash('Account deleted successfully.')
                 return redirect(url_for('index'))
