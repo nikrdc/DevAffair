@@ -5,7 +5,7 @@
         {% if get_flashed_messages() %}
             <div class="flash ind">
                 {% for message in get_flashed_messages() %}
-                    {{ message }}
+                    <div class="mf">{{ message }}</div>
                 {% endfor %}
             </div>
         {% endif %}

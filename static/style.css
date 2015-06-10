@@ -679,7 +679,7 @@ input[value="Search"] {
     margin: 50px 0 -7px 10px;
 }
 
-#query_terms {
+.query_terms {
     text-align: center;
     font-family: 'Rokkitt', serif;
     font-size: 1.5rem;
@@ -936,3 +936,19 @@ label[for='description'] {
             transition: all 0.2s;
 }
 
+.mf {
+    margin: 7px auto;
+}
+
+.fourohfour img {
+    width: 100%;
+}
+
+.fourohfour {
+    width: 400px;
+    margin: 0 auto;
+}
+
+.fouroherror {
+    margin: 75px 0 -25px 0;
+}

@@ -4,7 +4,7 @@
     {% if get_flashed_messages() %}
         <div class="flash">
             {% for message in get_flashed_messages() %}
-                {{ message }}
+                <div class="mf">{{ message }}</div>
             {% endfor %}
         </div>
     {% endif %}
@@ -77,6 +77,14 @@
                 {{ delete_form.password() }}<br>
                 {% if delete_form.password.errors %}
                     {% for error in delete_form.password.errors %}
+                        <div class="error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+
+                {{ delete_form.confirm.label }}
+                {{ delete_form.confirm() }}<br>
+                {% if delete_form.confirm.errors %}
+                    {% for error in delete_form.confirm.errors %}
                         <div class="error">{{ error }}</div>
                     {% endfor %}
                 {% endif %}

@@ -4,7 +4,7 @@
     {% if get_flashed_messages() %}
         <div class="flash">
             {% for message in get_flashed_messages() %}
-                {{ message }}
+                <div class="mf">{{ message }}</div>
             {% endfor %}
         </div>
     {% endif %}
@@ -36,7 +36,8 @@
                 {% endfor %}
             {% endif %}
         {% else %}
-            <div id="query_terms">No results found for query '{{ query }}'</div>
+            <div class="query_terms">No results found for query '{{ query }}'</div>
+            <div class="fourohfour"><img src="{{ url_for('static', filename='null_search.png') }}"></div>
         {% endif %}
     </div>
 {% endblock %}

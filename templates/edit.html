@@ -4,12 +4,11 @@
     {% if get_flashed_messages() %}
         <div class="flash">
             {% for message in get_flashed_messages() %}
-                {{ message }}
+                <div class="mf">{{ message }}</div>
             {% endfor %}
         </div>
     {% endif %}
 
-    <a id="delete_link" href="{{ url_for('delete', student_username=project.student.username, project_hashid=project.hashid) }}"><div id="delete_project">Delete project</div></a>
     <div class="edit_form">
         <div class="edit_form_title">Edit project</div>
         <form method="POST">
@@ -40,6 +39,23 @@
             {% endif %}
 
             {{ project_form.submit(value="Update") }}
+        </form>
+    </div>
+
+    <div class="edit_form" id="delete_form">
+        <div class="edit_form_title">Delete project</div>
+        <form method="POST">
+            {{ delete_form.csrf_token }}
+
+            {{ delete_form.confirm.label }}
+            {{ delete_form.confirm() }}<br>
+            {% if delete_form.confirm.errors %}
+                {% for error in delete_form.confirm.errors %}
+                    <div class="error">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+
+            {{ delete_form.submit() }}
         </form>
     </div>
 {% endblock %}

@@ -270,7 +270,25 @@ class DeleteForm(Form):
         if not current_user.verify_password(field.data):
             raise ValidationError('Incorrect password')
 
+    confirm = StringField(""" Type "ebullient" """, 
+            validators=[Required(message='The confirmation text is required')])
+
+    def validate_confirm(self, field):
+        if field.data.lower() != "ebullient":
+            raise ValidationError('Confirmation text entered incorrectly.')
+
     submit = SubmitField('Delete account')
+
+
+class DeleteProjectForm(Form):
+    confirm = StringField(""" Type "cynosure" """, 
+            validators=[Required(message='The confirmation text is required')])
+
+    def validate_confirm(self, field):
+        if field.data.lower() != "cynosure":
+            raise ValidationError('Confirmation text entered incorrectly.')
+
+    submit = SubmitField('Delete')
 
 
 class RequestResetForm(Form):
@@ -691,6 +709,7 @@ def edit(student_username, project_hashid):
         if current_user == student and not project.complete:
             search_form = SearchForm()
             project_form = ProjectForm(obj=project)
+            delete_form = DeleteProjectForm()
             if request.form:
                 submit_val = request.form['submit']
                 if submit_val == 'Search':
@@ -710,28 +729,23 @@ def edit(student_username, project_hashid):
                         return redirect(url_for('project', 
                                                 student_username=student_username,
                                                 project_hashid=project_hashid))
+                elif submit_val == 'Delete':
+                    if delete_form.validate_on_submit():
+                        db.session.delete(project)
+                        db.session.commit()
+                        flash('Project successfully deleted.')
+                        return redirect(url_for('index'))
+                    else:
+                        project_form.name.data = project.name
+                        project_form.website.data = project.website
+                        project_form.description.data = project.description
             return render_template('edit.html', 
                                    project=project,
                                    project_form=project_form, 
-                                   search_form=search_form)
+                                   search_form=search_form,
+                                   delete_form=delete_form)
         return redirect(url_for('project', 
                                 student_username=student_username,
-                                project_hashid=project_hashid))
-    abort(404)
-
-
-@app.route('/<student_username>/<project_hashid>/delete', methods=['GET'])
-@login_required
-def delete(student_username, project_hashid):
-    student = finder(student_username, 'student', current_user.school)
-    project = finder(hashids.decode(project_hashid), 'project')
-    if project.student is student:
-        if current_user == student and not project.complete:
-            db.session.delete(project)
-            db.session.commit()
-            flash('Project successfully deleted.')
-            return redirect(url_for('index'))
-        return redirect(url_for('project', student_username=student_username,
                                 project_hashid=project_hashid))
     abort(404)
 
