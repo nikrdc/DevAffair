@@ -920,4 +920,19 @@ label[for='description'] {
     text-decoration: underline;
 }
 
+.flash a {
+    color: #d10056;
+    text-decoration: none;
+    border-bottom: 2px solid #d10056;
+}
+
+.flash a:hover {
+    color: #66c5c6;
+    border-bottom: 2px solid #66c5c6;
+    -webkit-transition: all 0.2s;
+       -moz-transition: all 0.2s;
+        -ms-transition: all 0.2s;
+         -o-transition: all 0.2s;
+            transition: all 0.2s;
+}
 

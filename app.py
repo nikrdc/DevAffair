@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, redirect, session, url_for, abort, \
-                  flash, request, current_app, send_from_directory
+                  flash, request, current_app, send_from_directory, Markup
 from flask.ext.script import Manager, Shell
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.migrate import Migrate, MigrateCommand
@@ -369,6 +369,10 @@ def index():
             filter_by(school=current_user.school, complete=False).\
             order_by(Project.time_posted.desc()).\
             paginate(1, POSTS_PER_PAGE, False)
+        if not current_user.description:
+            message = Markup("""You haven't added a description yet! 
+                             <a href="/settings">Complete your profile.</a>""")
+            flash(message)
         return render_template('dashboard.html', 
                                search_form=search_form, 
                                incoming_requests=incoming_requests,
