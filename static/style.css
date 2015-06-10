@@ -484,14 +484,14 @@ input[value="Search"] {
 }
 
 #breaker {
-    height: 25px;
+    height: 18px;
 }
 
 #explore .dash_title {
     font-family: 'Rokkitt', serif;
     font-size: 1.5rem;
     font-weight: 700;
-    margin: 20px 0 15px 0;
+    margin: 20px 0 15px 7px;
     display: inline-block;
 }
 
@@ -565,7 +565,7 @@ input[value="Search"] {
 .p_description, .s_description {
     font-size: 0.78rem;
     font-weight: 400;
-    padding: 0 20px 21px 20px;
+    padding: 7px 20px 21px 20px;
     font-family: 'Verdana', sans-serif;
     line-height: 150%;
 }

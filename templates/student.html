@@ -16,7 +16,7 @@
             <a href="{{ url_for('settings') }}"><div class="p_editor">Edit</div></a>
         {% endif %}
         <div class="s_time">Joined {{ student.time_joined.strftime('%B %-d, %Y at %-I:%M %p') }}</div>
-        <div class="s_website">{% if student.website %}<span class="octicon octicon-globe"></span>&nbsp;<a href="{{ student.website }}">{{ student.website }}</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endif %}<span class="octicon octicon-mail"></span>&nbsp;<a href="mailto:{{ student.email }}">{{ student.email }}</a></div>
+        <div class="s_website">{% if student.website %}<span class="octicon octicon-globe"></span>&nbsp;<a href="{{ student.website }}">{{ student.website }}</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endif %}<span class="octicon octicon-mail"></span>&nbsp;<a href="mailto:{{ student.email }}">{{ student.email }}</a></div>
         <div class="s_description">{% if student.description %}{{ student.description }}{% else %}This user hasn't added a description yet!{% endif %}</div>
         
         {% if incomplete_projects.count() > 0 %}

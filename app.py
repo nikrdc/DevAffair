@@ -66,7 +66,7 @@ def load_user(user_id):
 hashids = Hashids(alphabet='abcdefghijklmnopqrstuvwxyz1234567890')
 BLACKLIST = ['complete', 'request', 'search', 'new', 'settings', 'reset', 
              'confirm', 'unconfirmed', 'login', 'signup', 'explore']
-POSTS_PER_PAGE = 1
+POSTS_PER_PAGE = 25
 
 
 # Models
