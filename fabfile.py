@@ -10,11 +10,12 @@ env.hosts = ['elephantsdontexist.com']
 #     local('tar -cvzf devaffair.tar.gz .')
 
 def dependencies():
-    run('workon devaffair')
-    run('pip install -r requirements.txt')
+    with prefix(". /usr/local/bin/virtualenvwrapper.sh; workon devaffair"):
+        run('pip install -r requirements.txt')
 
 def migrate():
-    run('python app.py db upgrade')
+    with prefix(". /usr/local/bin/virtualenvwrapper.sh; workon devaffair"):
+        run('python app.py db upgrade')
 
 def deploy():
     with cd('~/devaffair'):
