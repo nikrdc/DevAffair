@@ -561,7 +561,7 @@ def reset(token):
     if form.validate_on_submit():
         student = Student.query.filter_by(email=form.email.data).first()
         if student.reset_password(token, form.new_password.data):
-            flash('Password updated successfully.')
+            flash('Password successfully updated.')
             return redirect(url_for('login'))
         flash('The password reset link is invalid or has expired.')
     return render_template('reset.html', form=form)
@@ -596,12 +596,12 @@ def settings():
                 current_user.website = profile_form.website.data
                 current_user.description = profile_form.description.data
                 db.session.commit()
-                flash('Profile updated successfully.')
+                flash('Profile successfully updated.')
         elif submit_val == 'Change password':
             if password_form.validate_on_submit():
                 current_user.password = password_form.new_password.data
                 db.session.commit()
-                flash('Password updated successfully.')
+                flash('Password successfully updated.')
             profile_form.name.data = current_user.name
             profile_form.website.data = current_user.website
             profile_form.description.data = current_user.description
@@ -633,7 +633,7 @@ def settings():
 
                 The DevAffair Team""")
                 status, msg = sg.send(message)
-                flash('Account deleted successfully.')
+                flash('Account successfully deleted.')
                 return redirect(url_for('index'))
             else:
                 profile_form.name.data = current_user.name
@@ -706,7 +706,7 @@ def edit(student_username, project_hashid):
                         project.website = project_form.website.data
                         project.description = project_form.description.data
                         db.session.commit()
-                        flash('Project updated successfully.')
+                        flash('Project successfully updated.')
                         return redirect(url_for('project', 
                                                 student_username=student_username,
                                                 project_hashid=project_hashid))
@@ -729,7 +729,7 @@ def delete(student_username, project_hashid):
         if current_user == student and not project.complete:
             db.session.delete(project)
             db.session.commit()
-            flash('Project deleted successfully.')
+            flash('Project successfully deleted.')
             return redirect(url_for('index'))
         return redirect(url_for('project', student_username=student_username,
                                 project_hashid=project_hashid))
@@ -761,7 +761,7 @@ def new():
                 Project.query.get(project.id).hashid = \
                 hashids.encode(project.id)
                 db.session.commit()
-                flash('Project created successfully.')
+                flash('Project successfully created.')
                 return redirect(url_for('project', 
                                 student_username=current_user.username,
                                 project_hashid=project.hashid))
