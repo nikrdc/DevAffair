@@ -82,7 +82,7 @@
                 {% endif %}
 
                 {{ delete_form.confirm.label }}
-                {{ delete_form.confirm() }}<br>
+                {{ delete_form.confirm(placeholder="ebullient") }}<br>
                 {% if delete_form.confirm.errors %}
                     {% for error in delete_form.confirm.errors %}
                         <div class="error">{{ error }}</div>

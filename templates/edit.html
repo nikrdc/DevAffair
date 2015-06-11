@@ -48,7 +48,7 @@
             {{ delete_form.csrf_token }}
 
             {{ delete_form.confirm.label }}
-            {{ delete_form.confirm() }}<br>
+            {{ delete_form.confirm(placeholder="cynosure") }}<br>
             {% if delete_form.confirm.errors %}
                 {% for error in delete_form.confirm.errors %}
                     <div class="error">{{ error }}</div>

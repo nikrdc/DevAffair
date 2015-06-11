@@ -949,6 +949,10 @@ label[for='description'] {
     margin: 0 auto;
 }
 
+#search .fourohfour {
+    width: 300px;
+}
+
 .fouroherror {
     margin: 75px 0 -25px 0;
 }
