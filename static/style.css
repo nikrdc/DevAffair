@@ -638,7 +638,7 @@ input[value="Search"] {
             transition: all 0.1s;
 }
 
-.p_editor:hover {
+.p_editor:hover, #pjt:hover, #sdt:hover {
     background-color: #d10056;
     color: #f7f7f7;
 }
@@ -682,6 +682,7 @@ input[value="Search"] {
     font-weight: 700;
     font-size: 0.94rem;
     margin: 50px 0 -7px 10px;
+    display: inline-block;
 }
 
 .query_terms {
@@ -984,4 +985,21 @@ label[for='description'] {
     width: auto !important;
 }
 
-
+#pjt, #sdt {
+    display: inline-block;
+    font-family: 'Lato', sans-serif;
+    color: #d10056;
+    cursor: pointer;
+    border: 2px solid #d10056;
+    color: #d10056;
+    font-weight: 900;
+    text-align: center;
+    text-transform: uppercase;
+    font-size: 0.65rem;
+    padding: 3px 5px;
+    border-radius: 2px;
+    letter-spacing: 0.5px;
+    margin: 0 0 0 10px;
+    position: relative;
+    top: -2px;
+}

@@ -1,6 +1,36 @@
 {% extends "authenticated.html" %}
 {% block title %}Search{% endblock %}
 {% block batwing %}
+    <script>
+        $(document).ready(function() {
+            var i = 0;
+            $('#pjt').click(function() {
+                if (i == 0) {
+                    $('#pjt_list').slideUp(100);
+                    $('#pjt').html("show");
+                    i++;
+                } else {
+                    $('#pjt_list').slideDown(100);
+                    $('#pjt').html("hide");
+                    i--;
+                }
+            });
+
+            var j = 0;
+            $('#sdt').click(function() {
+                if (j == 0) {
+                    $('#sdt_list').slideUp(100);
+                    $('#sdt').html("show");
+                    j++;
+                } else {
+                    $('#sdt_list').slideDown(100);
+                    $('#sdt').html("hide");
+                    j--;
+                }
+            });
+        });
+    </script>
+
     {% if get_flashed_messages() %}
         <div class="flash">
             {% for message in get_flashed_messages() %}
@@ -14,6 +44,9 @@
             <div class="query_terms">Results for query '{{ query }}'</div>
             {% if project_results %}
                 <div class="search_type">{{ project_results|count }} project{% if project_results|count != 1 %}s{% endif %} found</div>
+                <span id="pjt">hide</span>
+                <div class="womp"></div>
+                <div id="pjt_list">
                 {% for project in project_results %}
                     <div id="project">
                         <div class="p_name"><a href="{{ url_for('project', student_username=project.student.username, project_hashid=project.hashid) }}">{{ project.name }}</a></div>
@@ -22,10 +55,14 @@
                         <div class="p_description read_more">{{ project.description }}</div>
                     </div>
                 {% endfor %}
+                </div>
             {% endif %}
             
             {% if student_results %}
                 <div class="search_type">{{ student_results|count }} student{% if student_results|count != 1 %}s{% endif %} found</div>
+                <span id="sdt">hide</span>
+                <div class="womp"></div>
+                <div id="sdt_list">
                 {% for student in student_results %}
                     <div id="student">
                         <div class="s_name"><a href="{{ url_for('school_student', shortname_username=student.username) }}">{{ student.name }}</a></div>
@@ -34,6 +71,7 @@
                         <div class="s_description read_more">{% if student.description %}{{ student.description }}{% else %}This user hasn't added a description yet!{% endif %}</div>
                     </div>
                 {% endfor %}
+                </div>
             {% endif %}
         {% else %}
             <div class="query_terms">No results found for query '{{ query }}'</div>
