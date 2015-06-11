@@ -11,7 +11,7 @@
                     <div class="p_name"><a href="{{ url_for('project', student_username=project.student.username, project_hashid=project.hashid) }}">{{ project.name }}</a></div>
                     <div class="p_time">Created {{ project.time_posted.strftime('%B %-d, %Y at %-I:%M %p') }}</div>
                     {% if project.website %}<div class="p_website"><a href="{{ project.website }}">{{ project.website }}</a></div>{% endif %}
-                    <div class="p_description">{{ project.description }}</div>
+                    <div class="p_description read_more">{{ project.description }}</div>
                 </div>
             {% endfor %}
         {% endif %}

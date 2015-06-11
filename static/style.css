@@ -146,7 +146,7 @@ body {
     text-align: center;
     font-family: 'Lato', sans-serif;
     font-size: 0.88rem;
-    line-height: 150%;
+    line-height: 2.7ex;
     color: white;
     z-index: 2;
     position: relative;
@@ -568,6 +568,11 @@ input[value="Search"] {
     padding: 7px 20px 21px 20px;
     font-family: 'Verdana', sans-serif;
     line-height: 150%;
+    white-space: pre-wrap;
+}
+
+.p_description {
+    padding: 0px 20px 21px 20px;
 }
 
 .p_name, .s_name {
@@ -956,3 +961,27 @@ label[for='description'] {
 .fouroherror {
     margin: 75px 0 -25px 0;
 }
+
+.read_more + [data-readmore-toggle], .read_more[data-readmore] {
+    width: auto !important;
+}
+
+.read_more + [data-readmore-toggle] {
+    font-family: 'Verdana', sans-serif;
+    color: #d10056;
+    font-size: 0.78rem;
+    width: 75px !important;
+    padding: 7px 0 20px 20px;
+}
+
+.p_description[aria-expanded='true'] {
+    padding: 0 20px 0 20px;
+    width: auto !important;
+}
+
+.s_description[aria-expanded='true'] {
+    padding: 7px 20px 0 20px;
+    width: auto !important;
+}
+
+
