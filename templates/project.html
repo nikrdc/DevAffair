@@ -1,6 +1,12 @@
 {% extends "authenticated.html" %}
 {% block title %}{{ project.name }}{% endblock %}
 {% block batwing %}
+    <script>
+        function confirmAction(){
+            var confirmed = confirm("Are you sure? Marking a project completed is irreversible.");
+            return confirmed;
+        }
+    </script>
     {% if get_flashed_messages() %}
         <div class="flash">
             {% for message in get_flashed_messages() %}
@@ -10,12 +16,12 @@
     {% endif %}
     
     <div id="project">
-        <div class="p_name"><a href="{{ url_for('school_student', shortname_username=project.student.username) }}">{{ project.student.name }}</a> / {{ project.name }}</div>
+        <div class="p_name"><a class="p_link" href="{{ url_for('school_student', shortname_username=project.student.username) }}">{{ project.student.name }}</a> / {{ project.name }}</div>
 
         {% if project.complete %}
             <div class="p_completed">Completed</div>
         {% elif project.student == current_user %}
-            <a href="{{ url_for('edit', student_username=current_user.username, project_hashid=project.hashid) }}"><div class="p_editor">Edit</div></a><a href="{{ url_for('complete', project_hashid=project.hashid) }}"><div class="p_editor p_done">Mark completed</div></a>
+            <a href="{{ url_for('edit', student_username=current_user.username, project_hashid=project.hashid) }}"><div class="p_editor">Edit</div></a><a href="{{ url_for('complete', project_hashid=project.hashid) }}" onclick="return confirmAction()"><div class="p_editor p_done">Mark completed</div></a>
         {% elif project in current_user.r_projects %}
             <a href="{{ url_for('rj_request', student_username=current_user.username, project_hashid=project.hashid, type='r_remove') }}"><div class="p_editor">Cancel request to join</div></a>
         {% elif project in current_user.j_projects %}

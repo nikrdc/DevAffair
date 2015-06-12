@@ -342,7 +342,7 @@ a.darken:hover img {
 
 #student, #search {
     width: 800px;
-    margin: 45px auto 55px auto;
+    margin: 45px auto 100px auto;
     position: relative;
 }
 
@@ -555,7 +555,7 @@ input[value="Search"] {
 }
 
 #project, #student {
-    margin: 30px auto 0 auto;
+    margin: 30px auto 100px auto;
 }
 
 #search #project, #search #student {
@@ -681,7 +681,7 @@ input[value="Search"] {
     font-family: 'Lato', sans-serif;
     font-weight: 700;
     font-size: 0.94rem;
-    margin: 50px 0 -7px 10px;
+    margin: 70px 0 -7px 10px;
     display: inline-block;
 }
 
@@ -690,6 +690,7 @@ input[value="Search"] {
     font-family: 'Rokkitt', serif;
     font-size: 1.5rem;
     font-weight: 700;
+    margin: 0 0 -20px 0;
 }
 
 .settings_new_edit {
@@ -698,7 +699,7 @@ input[value="Search"] {
 }
 
 .edit_form {
-    width: 550px;
+    width: 600px;
     background-color: #f7f7f7;
     margin: 35px auto 0 auto;
     border-radius: 3px;
@@ -733,7 +734,7 @@ label[for='description'] {
 }
 
 .edit_form input, .edit_form textarea {
-    width: 350px;
+    width: 400px;
     display: block;
     border: none;
     margin: 5px auto 5px auto;
@@ -754,7 +755,7 @@ label[for='description'] {
     border-radius: 2px;
     color: #d10056;
     cursor: pointer;
-    width: 350px;
+    width: 400px;
     padding: 4px 0 6px 0;
     background-color: #f7f7f7;
 }
@@ -770,8 +771,8 @@ label[for='description'] {
 }
 
 .edit_form textarea {
-    height: 100px;
-    resize: none;
+    height: 150px;
+    resize: vertical;
     border-radius: 2px;
     font-family: 'Verdana', sans-serif;
     font-size: 0.78rem;
@@ -975,16 +976,6 @@ label[for='description'] {
     padding: 7px 0 20px 20px;
 }
 
-.p_description[aria-expanded='true'] {
-    padding: 0 20px 0 20px;
-    width: auto !important;
-}
-
-.s_description[aria-expanded='true'] {
-    padding: 7px 20px 0 20px;
-    width: auto !important;
-}
-
 #pjt, #sdt {
     display: inline-block;
     font-family: 'Lato', sans-serif;
@@ -1002,4 +993,8 @@ label[for='description'] {
     margin: 0 0 0 10px;
     position: relative;
     top: -2px;
+}
+
+.p_link {
+    font-weight: 400;
 }

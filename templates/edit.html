@@ -8,54 +8,56 @@
             {% endfor %}
         </div>
     {% endif %}
+    
+    <div class="settings_new_edit">
+        <div class="edit_form">
+            <div class="edit_form_title">Edit project</div>
+            <form method="POST">
+                {{ project_form.csrf_token }}
 
-    <div class="edit_form">
-        <div class="edit_form_title">Edit project</div>
-        <form method="POST">
-            {{ project_form.csrf_token }}
+                {{ project_form.name.label }}
+                {{ project_form.name(placeholder="Batmobile") }}<br>
+                {% if project_form.name.errors %}
+                    {% for error in project_form.name.errors %}
+                        <div class="error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
 
-            {{ project_form.name.label }}
-            {{ project_form.name(placeholder="Batmobile") }}<br>
-            {% if project_form.name.errors %}
-                {% for error in project_form.name.errors %}
-                    <div class="error">{{ error }}</div>
-                {% endfor %}
-            {% endif %}
+                {{ project_form.website.label }}
+                {{ project_form.website(placeholder="http://zombo.com/") }}<br>
+                {% if project_form.website.errors %}
+                    {% for error in project_form.website.errors %}
+                        <div class="error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
 
-            {{ project_form.website.label }}
-            {{ project_form.website(placeholder="http://zombo.com/") }}<br>
-            {% if project_form.website.errors %}
-                {% for error in project_form.website.errors %}
-                    <div class="error">{{ error }}</div>
-                {% endfor %}
-            {% endif %}
+                {{ project_form.description.label }}
+                {{ project_form.description() }}<br>
+                {% if project_form.description.errors %}
+                    {% for error in project_form.description.errors %}
+                        <div class="error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
 
-            {{ project_form.description.label }}
-            {{ project_form.description() }}<br>
-            {% if project_form.description.errors %}
-                {% for error in project_form.description.errors %}
-                    <div class="error">{{ error }}</div>
-                {% endfor %}
-            {% endif %}
+                {{ project_form.submit(value="Update") }}
+            </form>
+        </div>
 
-            {{ project_form.submit(value="Update") }}
-        </form>
-    </div>
+        <div class="edit_form" id="delete_form">
+            <div class="edit_form_title">Delete project</div>
+            <form method="POST">
+                {{ delete_form.csrf_token }}
 
-    <div class="edit_form" id="delete_form">
-        <div class="edit_form_title">Delete project</div>
-        <form method="POST">
-            {{ delete_form.csrf_token }}
+                {{ delete_form.confirm.label }}
+                {{ delete_form.confirm(placeholder="cynosure") }}<br>
+                {% if delete_form.confirm.errors %}
+                    {% for error in delete_form.confirm.errors %}
+                        <div class="error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
 
-            {{ delete_form.confirm.label }}
-            {{ delete_form.confirm(placeholder="cynosure") }}<br>
-            {% if delete_form.confirm.errors %}
-                {% for error in delete_form.confirm.errors %}
-                    <div class="error">{{ error }}</div>
-                {% endfor %}
-            {% endif %}
-
-            {{ delete_form.submit() }}
-        </form>
+                {{ delete_form.submit() }}
+            </form>
+        </div>
     </div>
 {% endblock %}
