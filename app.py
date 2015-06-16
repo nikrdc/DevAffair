@@ -454,16 +454,15 @@ def signup():
         message.add_to(student.email)
         message.add_to_name(student.name)
         message.set_subject('DevAffair: confirm your account')
-        message.set_text("""
-        Dear """+student.name+""",
+        message.set_text("""Dear """+student.name+""",
 
-        Welcome to DevAffair! To confirm your account please click on the following link:
-            
-        """+url_for('confirm', token=token, _external=True)+"""
+Welcome to DevAffair! To confirm your account please click on the following link:
+    
+"""+url_for('confirm', token=token, _external=True)+"""
 
-        Sincerely,
+Sincerely,
 
-        The DevAffair Team""")
+The DevAffair Team""")
         status, msg = sg.send(message)
         flash('A confirmation email has been sent to you by email.')
         return redirect(url_for('index'))
@@ -511,16 +510,15 @@ def reconfirm():
     message.add_to(current_user.email)
     message.add_to_name(current_user.name)
     message.set_subject('DevAffair: confirm your account')
-    message.set_text("""
-    Dear """+current_user.name+""",
+    message.set_text("""Dear """+current_user.name+""",
 
-    Welcome to DevAffair! To confirm your account please click on the following link:
-        
-    """+url_for('confirm', token=token, _external=True)+"""
+Welcome again to DevAffair! To confirm your account please click on the following link:
+    
+"""+url_for('confirm', token=token, _external=True)+"""
 
-    Sincerely,
+Sincerely,
 
-    The DevAffair Team""")
+The DevAffair Team""")
     status, msg = sg.send(message)
     logout_user()
     flash('A new confirmation email has been sent to you by email.')
@@ -556,16 +554,15 @@ def request_reset():
         message.add_to(student.email)
         message.add_to_name(student.name)
         message.set_subject('DevAffair: reset your password')
-        message.set_text("""
-        Dear """+student.name+""",
+        message.set_text("""Dear """+student.name+""",
 
-        Sorry to hear you forgot your password! To reset your password please click on the following link:
-            
-        """+url_for('reset', token=token, _external=True)+"""
+We're sorry to hear you forgot your password! To reset your password please click on the following link:
+    
+"""+url_for('reset', token=token, _external=True)+"""
 
-        Sincerely,
+Sincerely,
 
-        The DevAffair Team""")
+The DevAffair Team""")
         status, msg = sg.send(message)
         flash('An email with instructions to reset your password has been \
               sent to you.')
@@ -642,14 +639,13 @@ def settings():
                 message.add_to(deadman.email)
                 message.add_to_name(deadman.name)
                 message.set_subject('DevAffair: account deleted')
-                message.set_text("""
-                Dear """+deadman.name+""",
+                message.set_text("""Dear """+deadman.name+""",
 
-                Your account at DevAffair has been deleted!
+Your account at DevAffair has been deleted!
 
-                Sincerely,
+Sincerely,
 
-                The DevAffair Team""")
+The DevAffair Team""")
                 status, msg = sg.send(message)
                 flash('Account successfully deleted.')
                 return redirect(url_for('index'))
@@ -681,7 +677,10 @@ def school_student(shortname_username):
                                incomplete_projects=incomplete_projects,
                                complete_projects=complete_projects)
     school = finder(shortname_username, 'school')
-    projects = sample(school.projects.filter_by(complete=False).all(), 3)
+    if len(school.projects.all()) < 3:
+        projects = school.projects.all()
+    else:
+        projects = sample(school.projects.filter_by(complete=False).all(), 3)
     return render_template('school.html', school=school, 
                            projects=projects)
 
@@ -811,6 +810,26 @@ def rj_request(student_username, project_hashid, type):
        project not in student.j_projects and \
        not project.complete:
         student.r_projects.append(project)
+        project_creator = project.student
+        message = sendgrid.Mail()
+        message.set_from('dev@elephantsdontexist.com')
+        message.set_from_name('The DevAffair Team')
+        message.add_to(project_creator.email)
+        message.add_to_name(project_creator.name)
+        message.set_subject('DevAffair: new request to join '+project.name)
+        message.set_text("""Dear """+project_creator.name+""",
+
+"""+student.name+""" requested to join your project """+project.name+""". Accept or deny this request on DevAffair:
+
+"""+url_for('project', 
+            project_hashid=project_hashid, 
+            student_username=project_creator.username,
+            _external=True)+"""
+
+Sincerely,
+
+The DevAffair Team""")
+        status, msg = sg.send(message)
     elif type == 'r_remove' and \
          ((current_user == student) or (current_user == project.student)) and \
          project in student.r_projects and \
@@ -824,6 +843,26 @@ def rj_request(student_username, project_hashid, type):
          not project.complete:
         student.r_projects.remove(project)
         student.j_projects.append(project)
+        project_creator = project.student
+        message = sendgrid.Mail()
+        message.set_from('dev@elephantsdontexist.com')
+        message.set_from_name('The DevAffair Team')
+        message.add_to(student.email)
+        message.add_to_name(student.name)
+        message.set_subject('DevAffair: request to join '+project.name+' accepted')
+        message.set_text("""Dear """+student.name+""",
+
+"""+project_creator.name+""" accepted your request to join """+project.name+""". Visit the project on DevAffair:
+
+"""+url_for('project', 
+            project_hashid=project_hashid, 
+            student_username=project_creator.username,
+            _external=True)+"""
+
+Sincerely,
+
+The DevAffair Team""")
+        status, msg = sg.send(message)
     elif type == 'j_remove' and \
          ((current_user == student) or (current_user == project.student)) and \
          project in student.j_projects and \
