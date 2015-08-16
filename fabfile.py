@@ -3,7 +3,7 @@ from fabric.api import *
 # the user to use for the remote commands
 env.user = 'dev'
 # the servers where the commands are executed
-env.hosts = ['elephantsdontexist.com']
+env.hosts = ['nikrdc.com']
 
 # def pack():
 #     # create a new source distribution as tarball

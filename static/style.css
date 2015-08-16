@@ -1001,9 +1001,19 @@ label[for='description'] {
 }
 
 input[type='checkbox'] {
-    margin: -3px 0 0 0;
+    margin: 4px 0 0 0;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    outline-width: 0;
+    background: no-repeat center white;
+    border-radius: 1px;
+}
+
+input[type='checkbox']:checked {
+    background: url('checked.png') no-repeat center white;
 }
 
 .remember_me_label {
-    margin: -22px 0 30px 21px;
+    margin: -17px 0 35px 25px;
 }
