@@ -1045,7 +1045,7 @@ input[type='checkbox']:checked {
         margin: 0 auto 30px auto;
     }
 
-    .public_project, #project, .pagination, .settings_new_edit, #student {
+    .settings_new_edit, .public_project, #project, .pagination, .settings_new_edit, #student {
         width: 90%;
     }
 
@@ -1076,7 +1076,7 @@ input[type='checkbox']:checked {
 
     #dash {
         width: 95%;
-        margin: 60px auto 0 auto;
+        margin: 40px auto 0 auto;
     }
 
     .flash {
@@ -1095,6 +1095,7 @@ input[type='checkbox']:checked {
 
     #dash_requests {
         width: 380px;
+        margin: 0;
         padding: 0 0 0 10px;
     }
 
@@ -1105,6 +1106,8 @@ input[type='checkbox']:checked {
         border-left: none;
         border-right: none;
         border-top: none;
+        border-radius: 0;
+        font-size: 1.05rem;
     }
 
     #query:focus {
@@ -1132,10 +1135,6 @@ input[type='checkbox']:checked {
         display: block;
     }
 
-    .settings_new_edit {
-        width: 85%;
-    }
-
     .edit_form, #search {
         width: 100%;
     }
@@ -1160,5 +1159,33 @@ input[type='checkbox']:checked {
 
     .mobile {
         display: none;
+    }
+
+    .p_name, .s_name {
+        padding: 12px 15px 5px 15px;
+    }
+
+    .p_time, .s_time {
+        padding: 2px 0 12px 15px;
+    }
+
+    .s_website, .p_website {
+        padding: 0 15px 12px 15px;
+    }
+
+    .p_description {
+        padding: 0px 15px 16px 15px;
+    }
+
+    .s_description {
+        padding: 7px 15px 16px 15px;
+    }
+
+    .read_more + [data-readmore-toggle] {
+        padding: 7px 0 18px 15px;
+    }
+
+    .p_students {
+        margin: -20px 15px 15px 15px;
     }
 }
