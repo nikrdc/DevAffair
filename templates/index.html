@@ -18,7 +18,7 @@
     <div id="how_it_works">
         <div class="mini_title">How it works</div>
         <div class="subtitle">Alice and Bob find each other on DevAffair.</div>
-        <div id="steps">    
+        <div id="steps" class="middle">    
             <div id="step1" class="step">
                 <img class="step_img" src="{{ url_for('static', filename='step1.png') }}">
                 <div class="step_description">Alice needs a website for a student group she founded. She posts her project to DevAffair.</div>
@@ -30,25 +30,27 @@
             <div id="step3" class="step">
                 <img class="step_img" src="{{ url_for('static', filename='step3.png') }}">
                 <div class="step_description">Having found each other on DevAffair, Bob and Alice work together to produce the website she dreamed of.</div>
-        </div>
+            </div>
         </div>
     </div>
 
     <div id="schools">
         <div class="mini_title">Find your school</div>
         <div class="subtitle">Collaborate with other students on projects you care about.</div>
-        {% for school in schools %}
-            <a class="darken" href="{{ url_for('school_student', shortname_username=school.shortname) }}">
-            <div class="school_card">            
-                <div class="school_name">{{ school.name }}</div>
-                <img class="school_pic" src="{{ url_for('static', filename=school.shortname+'.png') }}"> 
+        <div class="middle">
+            {% for school in schools %}
+                <a class="darken" href="{{ url_for('school_student', shortname_username=school.shortname) }}">
+                <div class="school_card">
+                    <div class="school_name">{{ school.name }}</div>
+                    <img class="school_pic" src="{{ url_for('static', filename=school.shortname+'.png') }}"> 
+                </div>
+                </a>
+            {% endfor %}
+            <div class="school_card" id="lost_card">            
+                <div class="school_name" id="lost">Can't find your <br> school?</div>
+                <div id="lost_description">Don't worry! School is for losers.</div>
+                <img class="school_pic" id="lost_img" src="{{ url_for('static', filename='question.png') }}"> 
             </div>
-            </a>
-        {% endfor %}
-        <div class="school_card" id="lost_card">            
-            <div class="school_name" id="lost">Can't find your <br> school?</div>
-            <div id="lost_description">Don't worry! School is for losers.</div>
-            <img class="school_pic" id="lost_img" src="{{ url_for('static', filename='question.png') }}"> 
         </div>
     </div>
     <div id="theend">
