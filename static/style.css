@@ -739,7 +739,7 @@ label[for='description'] {
 
 .edit_form input, .edit_form textarea {
     width: 400px;
-    display: block;
+    display: inline-block;
     border: none;
     height: 28px;
     margin: 5px auto 5px auto;
@@ -749,7 +749,6 @@ label[for='description'] {
     border-radius: 2px;
     background-color: #fdfdfd;
     color: #313131;
-    display: inline-block;
     vertical-align: top;
     border: 1px solid #e2e2e2;
 }
@@ -1043,8 +1042,8 @@ input[type='checkbox']:checked {
         margin: 0 auto 30px auto;
     }
 
-    .public_project, #project, .pagination {
-        width: 85%;
+    .public_project, #project, .pagination, .settings_new_edit, #student {
+        width: 90%;
     }
 
     #logo_link {
@@ -1074,6 +1073,7 @@ input[type='checkbox']:checked {
 
     #dash {
         width: 95%;
+        margin: 20px auto 0 auto;
     }
 
     .flash {
@@ -1101,5 +1101,40 @@ input[type='checkbox']:checked {
 
     #inside {
         right: 12px;
+    }
+
+    .edit_form_title {
+        padding: 10px 0 10px 0;
+        margin: 7px auto 12px auto;
+        text-align: center;
+    }
+
+    .edit_form label {
+        margin: 0 5px 0 17px;
+        text-align: left;
+    }
+
+    .edit_form input, .edit_form textarea {
+        margin: 5px auto 5px auto;
+        width: 92%;
+        display: block;
+    }
+
+    .settings_new_edit {
+        width: 85%;
+    }
+
+    .edit_form {
+        width: 100%;
+    }
+
+    .edit_form #submit, .edit_form #update, .edit_form #create {
+        margin: 0 auto 7px auto;
+        width: 92%;
+    }
+
+    .mobile_email {
+        display: block;
+        margin: 7px 0 0 0;
     }
 }
