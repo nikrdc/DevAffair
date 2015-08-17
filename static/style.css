@@ -294,6 +294,7 @@ a.darken:hover img {
     padding: 5px 0 7px 0;
     width: 100px;
     margin: 15px auto 0 auto;
+    -webkit-appearance: none;
 }
 
 .error {
@@ -1025,8 +1026,12 @@ input[type='checkbox']:checked {
 }
 
 @media only screen and (max-device-width: 480px) {
+    #steps {
+        width: 290px;
+    }
+
     .middle {
-        width: 80%;
+        width: 299.2px;
     }
 
     #steps {
@@ -1036,5 +1041,22 @@ input[type='checkbox']:checked {
     .subtitle {
         width: 80%;
         margin: 0 auto 30px auto;
+    }
+
+    .public_project {
+        width: 85%;
+    }
+
+    #logo_link {
+        margin: 0 0 0 -3px;
+    }
+
+    #entry_buttons {
+        right: 0;
+        margin: 0;
+    }
+
+    #navbar_cramped {
+        width: 100%;
     }
 }
