@@ -1027,7 +1027,7 @@ input[type='checkbox']:checked {
 
 @media only screen and (max-device-width: 480px) {
     #steps {
-        width: 290px;
+        width: 300px;
     }
 
     .middle {
@@ -1043,7 +1043,7 @@ input[type='checkbox']:checked {
         margin: 0 auto 30px auto;
     }
 
-    .public_project {
+    .public_project, #project, .pagination {
         width: 85%;
     }
 
@@ -1058,5 +1058,48 @@ input[type='checkbox']:checked {
 
     #navbar_cramped {
         width: 100%;
+    }
+
+    #explore {
+        width: 100%;
+    }
+
+    #explore .dash_title {
+        margin: 20px 0 3px 29px;
+    }
+
+    #explore .dash_subtitle {
+        margin: 0 0 15px 30px
+    }
+
+    #dash {
+        width: 95%;
+    }
+
+    .flash {
+        line-height: 160%;
+        width: 70%;
+    }
+
+    #dash_active {
+        margin: 0;
+        padding: 0 0 0 10px;
+    }
+
+    #dash_requests .dash_li {
+        width: 333px;
+    }
+
+    #dash_requests {
+        width: 380px;
+        padding: 0 0 0 10px;
+    }
+
+    #query {
+        display: none;
+    }
+
+    #inside {
+        right: 12px;
     }
 }

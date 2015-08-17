@@ -35,12 +35,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = \
                         'sqlite:///' + os.path.join(basedir, 'data.sqlite')
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 465
-app.config['MAIL_USE_SSL'] = True
-app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
-app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
-
 app.config['WHOOSH_BASE'] = os.path.join(basedir, 'search.db')
 MAX_SEARCH_RESULTS = 50
 
@@ -343,23 +337,6 @@ def finder(key, type, key2=None):
     if type == 'project':
         return Project.query.get(key) or abort(404)
     abort(404)
-
-
-
-# Email
-
-def send_async_email(app, msg):
-    with app.app_context():
-        mail.send(msg)
-
-
-def send_email(to, subject, template, **kwargs):
-    msg = Message('DevAffair: ' + subject, sender = 'The DevAffair Team', 
-                  recipients = [to])
-    msg.body = render_template(template + '.txt', **kwargs)
-    thr = Thread(target = send_async_email, args = [app, msg])
-    thr.start()
-    return thr
 
 
 
