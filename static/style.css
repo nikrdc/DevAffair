@@ -751,6 +751,7 @@ label[for='description'] {
     color: #313131;
     vertical-align: top;
     border: 1px solid #e2e2e2;
+    -webkit-appearance: none;
 }
 
 .edit_form #submit, .edit_form #update, .edit_form #create {
@@ -762,6 +763,8 @@ label[for='description'] {
     width: 400px;
     padding: 4px 0 6px 0;
     background-color: #f7f7f7;
+    -webkit-appearance: none;
+
 }
 
 .edit_form #submit:hover, .edit_form #update:hover, .edit_form #create:hover {
@@ -1064,16 +1067,16 @@ input[type='checkbox']:checked {
     }
 
     #explore .dash_title {
-        margin: 20px 0 3px 29px;
+        margin: 20px 0 3px 21px;
     }
 
     #explore .dash_subtitle {
-        margin: 0 0 15px 30px
+        margin: 0 0 10px 22px
     }
 
     #dash {
         width: 95%;
-        margin: 20px auto 0 auto;
+        margin: 60px auto 0 auto;
     }
 
     .flash {
@@ -1096,7 +1099,16 @@ input[type='checkbox']:checked {
     }
 
     #query {
-        display: none;
+        width: 95%;
+        margin: 50px auto 0 2.5%;
+        border-bottom: 2px solid #82d0d1;
+        border-left: none;
+        border-right: none;
+        border-top: none;
+    }
+
+    #query:focus {
+        box-shadow: none;
     }
 
     #inside {
@@ -1124,7 +1136,7 @@ input[type='checkbox']:checked {
         width: 85%;
     }
 
-    .edit_form {
+    .edit_form, #search {
         width: 100%;
     }
 
@@ -1136,5 +1148,17 @@ input[type='checkbox']:checked {
     .mobile_email {
         display: block;
         margin: 7px 0 0 0;
+    }
+
+    .search_type {
+        margin: 70px 0 0px 20px;
+    }
+
+    .query_terms {
+        margin: 75px 0 -20px 0;
+    }
+
+    .mobile {
+        display: none;
     }
 }

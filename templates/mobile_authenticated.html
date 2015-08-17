@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{% endblock %}
+{% block body %}
+    <div id="navbar">
+        <div id="navbar_cramped">
+            <a id="logo_link" href="{{ url_for('index') }}">
+                <img id="logo" src="{{ url_for('static', filename='logo.png') }}">
+            </a>
+            <form method="POST" class="mobile">
+                {{ search_form.csrf_token }}
+                {{ search_form.query(placeholder="Search") }}
+                {{ search_form.submit() }}
+            </form>
+            <div id="inside">
+                <a id="username_link" href="{{ url_for('school_student', shortname_username=current_user.username) }}">{{ current_user.username }}</a>
+                <a href="{{ url_for('new') }}"><span class="octicon octicon-plus"></span></a>
+                <a href="{{ url_for('settings') }}"><span class="octicon octicon-gear"></span></a>
+                <a href="{{ url_for('logout') }}"><span class="octicon octicon-sign-out"></span></a>
+            </div>
+        </div>
+    </div>
+    {% block batwing %}
+    {% endblock %}
+{% endblock %}
