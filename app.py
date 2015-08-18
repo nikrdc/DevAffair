@@ -774,6 +774,16 @@ def search(query):
                            project_results=project_results,
                            search_form = SearchForm())
 
+@app.route('/search', methods=['GET', 'POST'])
+@login_required
+def empty_search():
+    search_form = SearchForm()
+    if search_form.validate_on_submit():
+        return redirect(url_for('search', query=search_form.query.data))
+    return render_template('search.html', query=None, 
+                           student_results=None,
+                           project_results=None,
+                           search_form = SearchForm())
 
 @app.route('/request/<student_username>/<project_hashid>/<type>', 
            methods=['GET'])

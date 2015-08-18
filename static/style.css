@@ -1027,6 +1027,10 @@ input[type='checkbox']:checked {
     margin: -17px 0 35px 25px;
 }
 
+.desktop {
+    display: none !important;
+}
+
 @media only screen and (max-device-width: 480px) {
     #steps {
         width: 300px;
@@ -1045,7 +1049,7 @@ input[type='checkbox']:checked {
         margin: 0 auto 30px auto;
     }
 
-    .settings_new_edit, .public_project, #project, .pagination, .settings_new_edit, #student {
+    #query, .query_terms, .settings_new_edit, .public_project, #project, .pagination, .settings_new_edit, #student {
         width: 90%;
     }
 
@@ -1076,7 +1080,7 @@ input[type='checkbox']:checked {
 
     #dash {
         width: 95%;
-        margin: 40px auto 0 auto;
+        margin: -10px auto 0 auto;
     }
 
     .flash {
@@ -1100,18 +1104,12 @@ input[type='checkbox']:checked {
     }
 
     #query {
-        width: 95%;
-        margin: 50px auto 0 2.5%;
-        border-bottom: 2px solid #82d0d1;
-        border-left: none;
-        border-right: none;
-        border-top: none;
-        border-radius: 0;
-        font-size: 1.05rem;
-    }
-
-    #query:focus {
-        box-shadow: none;
+        margin: 55px auto 0 5%;
+        border: 2px solid #82d0d1;
+        border-radius: 2px;
+        height: 40px;
+        font-size: 1.3rem;
+        padding: 8px 8px 10px 8px;
     }
 
     #inside {
@@ -1154,7 +1152,7 @@ input[type='checkbox']:checked {
     }
 
     .query_terms {
-        margin: 75px 0 -20px 0;
+        margin: 90px auto -20px auto;
     }
 
     .mobile {
@@ -1187,5 +1185,9 @@ input[type='checkbox']:checked {
 
     .p_students {
         margin: -20px 15px 15px 15px;
+    }
+
+    .desktop {
+        display: inline-block !important;
     }
 }
