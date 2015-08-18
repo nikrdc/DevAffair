@@ -1110,7 +1110,7 @@ input[type='checkbox']:checked {
         border-radius: 2px;
         height: 35px;
         font-size: 1.3rem;
-        padding: 9px 9px 9px 7px;
+        padding: 8px 9px 10px 7px;
     }
 
     #inside {
