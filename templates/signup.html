@@ -4,7 +4,7 @@
 	<div class="external_form">
         <div class="internal_form">
 			<a href="{{ url_for('index') }}">
-        		<img id="logo" src="{{ url_for('static', filename='logo.png') }}">
+        		<img id="logo" src="/static/logo.png">
         	</a>
             <form method="POST">
                 {{ form.csrf_token }}

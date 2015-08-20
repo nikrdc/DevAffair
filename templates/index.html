@@ -9,7 +9,7 @@
                 {% endfor %}
             </div>
         {% endif %}
-        <img id="logo" src="{{ url_for('static', filename='logo.png') }}">
+        <img id="logo" src="/static/logo.png">
         <div id="slogan">Connecting student groups with student developers</div>
         <div class="entry_button" id="signup_button"><a href="{{ url_for('signup') }}">Sign up</a></div>
         <div class="entry_button" id="login_button"><a href="{{ url_for('login') }}">Log in</a></div>
@@ -20,15 +20,15 @@
         <div class="subtitle">Alice and Bob find each other on DevAffair.</div>
         <div id="steps" class="middle">    
             <div id="step1" class="step">
-                <img class="step_img" src="{{ url_for('static', filename='step1.png') }}">
+                <img class="step_img" src="/static/step1.png">
                 <div class="step_description">Alice needs a website for a student group she founded. She posts her project to DevAffair.</div>
             </div>
             <div id="step2" class="step">
-                <img class="step_img" src="{{ url_for('static', filename='step2.png') }}">
+                <img class="step_img" src="/static/step2.png">
                 <div class="step_description">Bob is a developer at the same school who wants to gain experience. He finds Alice's website project on DevAffair.</div>
             </div>
             <div id="step3" class="step">
-                <img class="step_img" src="{{ url_for('static', filename='step3.png') }}">
+                <img class="step_img" src="/static/step3.png">
                 <div class="step_description">Having found each other on DevAffair, Bob and Alice work together to produce the website she dreamed of.</div>
             </div>
         </div>
@@ -49,7 +49,7 @@
             <div class="school_card" id="lost_card">            
                 <div class="school_name" id="lost">Can't find your <br> school?</div>
                 <div id="lost_description">Don't worry! School is for losers.</div>
-                <img class="school_pic" id="lost_img" src="{{ url_for('static', filename='question.png') }}"> 
+                <img class="school_pic" id="lost_img" src="/static/question.png"> 
             </div>
         </div>
     </div>

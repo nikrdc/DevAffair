@@ -4,7 +4,7 @@
     <div id="navbar">
         <div id="navbar_cramped">
             <a id="logo_link" href="{{ url_for('index') }}">
-                <img id="logo" src="{{ url_for('static', filename='logo.png') }}">
+                <img id="logo" src="/static/logo.png">
             </a>
             <form method="POST">
                 {{ search_form.csrf_token }}
