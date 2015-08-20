@@ -220,7 +220,8 @@ not School.query.filter_by(email_domain=field.data.split('@')[1]).first() \
         and 'This email address is invalid.' not in field.errors:
             raise ValidationError("Sorry! We don't support this school yet.")            
 
-    password = PasswordField('Password')
+    password = PasswordField('Password', validators=[Length(8, message='Your \
+                             password must be at least 8 characters long.')])
     submit = SubmitField('Sign up')
 
 
@@ -252,7 +253,9 @@ class PasswordForm(Form):
             raise ValidationError('Incorrect password')
 
     new_password = PasswordField('New password', 
-            validators=[Required(message='Your new password is required.')])
+            validators=[Required(message='Your new password is required.'),
+                        Length(8, message='Your password must be at least 8 \
+                        characters long.')])
     submit = SubmitField('Change password')
 
 
@@ -304,7 +307,9 @@ class ResetForm(Form):
                         Length(1, 64), 
                         Email(message='This email address is invalid.')])
     new_password = PasswordField('New password', 
-            validators=[Required(message='Your new password is required.')])
+            validators=[Required(message='Your new password is required.'),
+                        Length(8, message='Your password must be at least 8 \
+                        characters long.')])
     submit = SubmitField('Change password')
 
 
@@ -337,6 +342,14 @@ def finder(key, type, key2=None):
     if type == 'project':
         return Project.query.get(key) or abort(404)
     abort(404)
+
+def email_creator(recipient):
+    message = sendgrid.Mail()
+    message.set_from('dev@elephantsdontexist.com')
+    message.set_from_name('The DevAffair Team')
+    message.add_to(recipient.email)
+    message.add_to_name(recipient.name)
+    return message
 
 
 
@@ -421,25 +434,12 @@ def signup():
         db.session.commit()
         login_user(student)
         token = student.generate_confirmation_token()
-        '''
-        send_email(student.email, 'confirm your account', 'mail/confirm', 
-                   student=student, token=token)
-        '''
-        message = sendgrid.Mail()
-        message.set_from('dev@elephantsdontexist.com')
-        message.set_from_name('The DevAffair Team')
-        message.add_to(student.email)
-        message.add_to_name(student.name)
+        message = email_creator(student)
         message.set_subject('DevAffair: confirm your account')
-        message.set_text("""Dear """+student.name+""",
-
-Welcome to DevAffair! To confirm your account please click on the following link:
-    
-"""+url_for('confirm', token=token, _external=True)+"""
-
-Sincerely,
-
-The DevAffair Team""")
+        message.set_text("Dear " + student.name + ", \n\n" + "Welcome to " +
+            "DevAffair! To confirm your account please click on the following" +
+            " link: \n\n" + url_for('confirm', token=token, _external=True) +
+            "\n\nSincerely, \n\nThe DevAffair Team")
         status, msg = sg.send(message)
         flash('A confirmation email has been sent to you by email.')
         return redirect(url_for('index'))
@@ -477,25 +477,12 @@ def reconfirm():
         flash('You have already confirmed your account!')
         return redirect(url_for('index'))
     token = current_user.generate_confirmation_token()
-    """
-    send_email(current_user.email, 'confirm your account', 'mail/confirm', 
-               student=current_user, token=token)
-    """
-    message = sendgrid.Mail()
-    message.set_from('dev@elephantsdontexist.com')
-    message.set_from_name('The DevAffair Team')
-    message.add_to(current_user.email)
-    message.add_to_name(current_user.name)
+    message = email_creator(current_user)
     message.set_subject('DevAffair: confirm your account')
-    message.set_text("""Dear """+current_user.name+""",
-
-Welcome again to DevAffair! To confirm your account please click on the following link:
-    
-"""+url_for('confirm', token=token, _external=True)+"""
-
-Sincerely,
-
-The DevAffair Team""")
+    message.set_message("Dear " + current_user.name + ", \n\n" + "Welcome to " +
+        "DevAffair! To confirm your account please click on the following" +
+        " link: \n\n" + url_for('confirm', token=token, _external=True) +
+        "\n\nSincerely, \n\nThe DevAffair Team")
     status, msg = sg.send(message)
     logout_user()
     flash('A new confirmation email has been sent to you by email.')
@@ -521,25 +508,13 @@ def request_reset():
     if form.validate_on_submit():
         student = Student.query.filter_by(email=form.email.data).first()
         token = student.generate_reset_token()
-        """
-        send_email(student.email, 'reset your password', 'mail/reset',
-                   student=student, token=token, next=request.args.get('next'))
-        """
-        message = sendgrid.Mail()
-        message.set_from('dev@elephantsdontexist.com')
-        message.set_from_name('The DevAffair Team')
-        message.add_to(student.email)
-        message.add_to_name(student.name)
+        message = email_creator(student)
         message.set_subject('DevAffair: reset your password')
-        message.set_text("""Dear """+student.name+""",
-
-We're sorry to hear you forgot your password! To reset your password please click on the following link:
-    
-"""+url_for('reset', token=token, _external=True)+"""
-
-Sincerely,
-
-The DevAffair Team""")
+        message.set_text("Dear " + student.name + ", \n\n" + 
+            "We're sorry to hear you forgot your password! To reset your " + 
+            "password please click on the following link: \n\n" + 
+            url_for('reset', token=token, _external=True) + 
+            "\n\nSincerely, \n\nThe DevAffair Team")
         status, msg = sg.send(message)
         flash('An email with instructions to reset your password has been \
               sent to you.')
@@ -606,23 +581,11 @@ def settings():
                 logout_user()
                 db.session.delete(deadman)
                 db.session.commit()
-                """
-                send_email(deadman.email, 'account deleted', 'mail/deleted', 
-                           student=deadman)
-                """
-                message = sendgrid.Mail()
-                message.set_from('dev@elephantsdontexist.com')
-                message.set_from_name('The DevAffair Team')
-                message.add_to(deadman.email)
-                message.add_to_name(deadman.name)
+                message = email_creator(deadman)
                 message.set_subject('DevAffair: account deleted')
-                message.set_text("""Dear """+deadman.name+""",
-
-Your account at DevAffair has been deleted!
-
-Sincerely,
-
-The DevAffair Team""")
+                message.set_text("Dear " + deadman.name + ", \n\nYour account" + 
+                    " at DevAffair has been deleted!\n\nSincerely, \n\nThe " +
+                    "DevAffair Team")
                 status, msg = sg.send(message)
                 flash('Account successfully deleted.')
                 return redirect(url_for('index'))
@@ -798,24 +761,15 @@ def rj_request(student_username, project_hashid, type):
        not project.complete:
         student.r_projects.append(project)
         project_creator = project.student
-        message = sendgrid.Mail()
-        message.set_from('dev@elephantsdontexist.com')
-        message.set_from_name('The DevAffair Team')
-        message.add_to(project_creator.email)
-        message.add_to_name(project_creator.name)
-        message.set_subject('DevAffair: new request to join '+project.name)
-        message.set_text("""Dear """+project_creator.name+""",
-
-"""+student.name+""" requested to join your project """+project.name+""". Accept or deny this request on DevAffair:
-
-"""+url_for('project', 
-            project_hashid=project_hashid, 
-            student_username=project_creator.username,
-            _external=True)+"""
-
-Sincerely,
-
-The DevAffair Team""")
+        message = email_creator(project_creator)
+        message.set_subject('DevAffair: new request to join ' + project.name)
+        message.set_text("Dear " + project_creator.name + ", \n\n" + 
+            student.name + " requested to join your project " + project.name + 
+            ". Accept or deny this request on DevAffair: \n\n" + 
+            url_for('project', project_hashid=project_hashid, 
+                               student_username=project_creator.username,
+                               _external=True) + 
+            "\n\nSincerely, \n\nThe DevAffair Team")
         status, msg = sg.send(message)
     elif type == 'r_remove' and \
          ((current_user == student) or (current_user == project.student)) and \
@@ -831,24 +785,16 @@ The DevAffair Team""")
         student.r_projects.remove(project)
         student.j_projects.append(project)
         project_creator = project.student
-        message = sendgrid.Mail()
-        message.set_from('dev@elephantsdontexist.com')
-        message.set_from_name('The DevAffair Team')
-        message.add_to(student.email)
-        message.add_to_name(student.name)
-        message.set_subject('DevAffair: request to join '+project.name+' accepted')
-        message.set_text("""Dear """+student.name+""",
-
-"""+project_creator.name+""" accepted your request to join """+project.name+""". Visit the project on DevAffair:
-
-"""+url_for('project', 
-            project_hashid=project_hashid, 
-            student_username=project_creator.username,
-            _external=True)+"""
-
-Sincerely,
-
-The DevAffair Team""")
+        message = email_creator(student)
+        message.set_subject('DevAffair: request to join ' + project.name +
+                            ' accepted')
+        message.set_text("Dear " + student.name + ", \n\n" + 
+            project_creator.name + " accepted your request to join " + 
+            project.name + ". Visit the project on DevAffair: \n\n" + 
+            url_for('project', project_hashid=project_hashid, 
+                               student_username=project_creator.username,
+                               _external=True) +
+            "\n\nSincerely, \n\nThe DevAffair Team")
         status, msg = sg.send(message)
     elif type == 'j_remove' and \
          ((current_user == student) or (current_user == project.student)) and \
@@ -874,7 +820,7 @@ def complete(project_hashid):
                         student_username=current_user.username,
                         project_hashid=project.hashid))
     else:
-        abort(400)
+        abort(404)
 
 
 if __name__ == '__main__':

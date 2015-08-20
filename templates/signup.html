@@ -27,6 +27,11 @@
 
                 {{ form.password.label }}<br>
                 {{ form.password() }}<br>
+                {% if form.email.errors %}
+                    {% for error in form.password.errors %}
+                        <div class="error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
 
                 {{ form.submit() }}
             </form>
