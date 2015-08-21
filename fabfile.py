@@ -23,5 +23,4 @@ def deploy():
         dependencies()
         migrate()
 
-    with shell_env(SECRET_KEY='6VJenDI6V0w2nsXB9iSdj4UfOt8f'):
-    	run('touch /tmp/reload_devaffair')
+    run('touch /tmp/reload_devaffair')
