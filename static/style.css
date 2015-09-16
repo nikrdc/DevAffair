@@ -1216,7 +1216,7 @@ input[type='checkbox']:checked {
         border-radius: 2px;
         height: 35px;
         margin: 0 0 0 -6px;
-        top: -8px;
+        top: -12px;
         position: relative;
         font-size: 1rem;
         padding: 0 0 2px 0;
