@@ -8,6 +8,13 @@
             {% endfor %}
         </div>
     {% endif %}
+
+    {% if not (current_user.projects.all() or current_user.j_projects.all()  or current_user.r_projects.all()) %}
+        <div class="welcome_banner">
+            <div class="w_name">The goal of DevAffair is to connect students who want to build great things. Here's how to get started:</div>
+            <div class="w_description"><ul><li>If you want designers, developers, and other creatives to see (and hopefully join) your project, post it to the site by clicking the plus button at the top right.</li><li>If you'd like to join (and hopefully contribute to) a project, find one you like with the search bar above or in the list below.</li></ul></div>
+        </div>
+    {% endif %}
     
     {% if incoming_requests or outgoing_requests or active_projects %}
         <div id="dash">

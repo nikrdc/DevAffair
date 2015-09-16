@@ -548,7 +548,7 @@ input[value="Search"] {
     padding: 0 0 55px 0; 
 }
 
-.public_project, #project, #student {
+.public_project, #project, #student, .welcome_banner {
     width: 800px;
     margin: 20px auto;
     background-color: #f7f7f7;
@@ -567,7 +567,7 @@ input[value="Search"] {
     margin: 20px auto 0 auto;
 }
 
-.p_description, .s_description {
+.p_description, .s_description, .w_description {
     font-size: 0.78rem;
     font-weight: 400;
     padding: 7px 20px 21px 20px;
@@ -576,15 +576,27 @@ input[value="Search"] {
     white-space: pre-wrap;
 }
 
+.w_description {
+    padding: 0px 28px 8px 7px !important;
+}
+
+.w_description li {
+    padding: 5px 10px 7px 0px;
+}
+
 .p_description {
     padding: 0px 20px 21px 20px;
 }
 
-.p_name, .s_name {
+.p_name, .s_name, .w_name {
     font-size: 1.05rem;
     font-weight: 700;
     padding: 16px 20px 5px 20px;
     display: inline-block;
+}
+
+.w_name {
+    padding: 22px 20px 2px 25px;
 }
 
 .p_time, .s_time {
