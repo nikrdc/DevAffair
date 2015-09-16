@@ -362,7 +362,7 @@ a.darken:hover img {
     margin: -7px auto 100px auto;
 }
 
-input[value="Search"] {
+input[value="Go"] {
     display: none;
 }
 
@@ -1210,7 +1210,7 @@ input[type='checkbox']:checked {
 
     #query:focus {
         outline: none;
-        box-shadow: 0;
+        box-shadow: none;
     }
 
     input[value="Go"] {
