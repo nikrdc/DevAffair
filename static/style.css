@@ -1216,7 +1216,7 @@ input[type='checkbox']:checked {
         border-radius: 2px;
         height: 35px;
         margin: 0 0 0 -6px;
-        top: -2px;
+        top: -8px;
         position: relative;
         font-size: 1rem;
         padding: 0 0 2px 0;
@@ -1224,6 +1224,7 @@ input[type='checkbox']:checked {
         color: white;
         font-family: 'Lato', sans-serif;
         letter-spacing: 2px;
+        font-weight: 700;
         -webkit-appearance: none;
     }
 }
