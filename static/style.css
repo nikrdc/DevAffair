@@ -1208,6 +1208,11 @@ input[type='checkbox']:checked {
         width: 70%;
     }
 
+    #query:focus {
+        outline: none;
+        box-shadow: 0;
+    }
+
     input[value="Go"] {
         display: inline;
         width: 20%;
