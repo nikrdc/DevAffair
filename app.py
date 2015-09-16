@@ -315,7 +315,7 @@ class ResetForm(Form):
 
 class SearchForm(Form):
     query = StringField('Query', validators=[Required()])
-    submit = SubmitField('Search')
+    submit = SubmitField('Go')
 
 
 

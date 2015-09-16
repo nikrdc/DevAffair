@@ -1062,7 +1062,7 @@ input[type='checkbox']:checked {
         margin: 0 auto 30px auto;
     }
 
-    #query, .query_terms, .settings_new_edit, .public_project, #project, .pagination, .settings_new_edit, #student {
+    .query_terms, .settings_new_edit, .public_project, #project, .pagination, .settings_new_edit, #student, .welcome_banner {
         width: 90%;
     }
 
@@ -1172,7 +1172,7 @@ input[type='checkbox']:checked {
         display: none;
     }
 
-    .p_name, .s_name {
+    .p_name, .s_name, .w_name {
         padding: 12px 15px 5px 15px;
     }
 
@@ -1202,5 +1202,27 @@ input[type='checkbox']:checked {
 
     .desktop {
         display: inline-block !important;
+    }
+
+    #query {
+        width: 70%;
+    }
+
+    input[value="Go"] {
+        display: inline;
+        width: 20%;
+        border: 0;
+        background: #82d0d1;
+        border-radius: 2px;
+        height: 35px;
+        margin: 0 0 0 -6px;
+        top: -2px;
+        position: relative;
+        font-size: 1rem;
+        padding: 0 0 2px 0;
+        text-transform: uppercase;
+        color: white;
+        font-family: 'Lato', sans-serif;
+        letter-spacing: 2px;
     }
 }
