@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, redirect, session, url_for, abort, \
                   flash, request, current_app, send_from_directory, Markup
-from flask.ext.script import Manager, Shell
+from flask.ext.script import Manager, Shell, Server
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.migrate import Migrate, MigrateCommand
 from werkzeug.security import generate_password_hash, check_password_hash

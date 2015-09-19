@@ -24,12 +24,7 @@
         		<div class="p_name">{{ project.name }}</div>
                 <div class="p_time">{{ project.time_posted.strftime('%B %-d, %Y at %-I:%M %p') }}</div>
         		<div class="p_description read_more">{{ project.description }}</div>
-                <div class="p_tags">
-                    {% for tag in project.tags %}
-                        <a class="p_tag">{{ tag.name }}</a>
-                    {% endfor %}
-                </div>
         	</div>
         {% endfor %}
-    <div id="projects">
+    </div>
 {% endblock %}
