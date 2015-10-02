@@ -18,7 +18,7 @@ def migrate():
         run('python app.py db upgrade')
 
 def deploy():
-    with cd('~/projects/devaffair'):
+    with cd('~/devaffair'):
         run('git pull origin master')
         dependencies()
         migrate()
