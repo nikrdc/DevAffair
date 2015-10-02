@@ -63,7 +63,8 @@ BLACKLIST = ['complete', 'request', 'search', 'new', 'settings', 'reset',
              'confirm', 'unconfirmed', 'login', 'signup', 'explore']
 POSTS_PER_PAGE = 25
 
-sg = sendgrid.SendGridClient('nikrdc', '2EzHR42TJwuzZrTXS0eZ')
+sg = sendgrid.SendGridClient(os.environ.get('SENDGRID_USERNAME'), 
+                             os.environ.get('SENDGRID_PASSWORD'))
 
 
 
