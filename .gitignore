@@ -4,3 +4,4 @@ venv
 data.sqlite
 sitemap.txt
 search.db
+wsgi.py
