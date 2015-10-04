@@ -5,3 +5,4 @@ data.sqlite
 sitemap.txt
 search.db
 wsgi.py
+config.py

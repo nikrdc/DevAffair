@@ -1,4 +1,5 @@
 import os
+import config
 from flask import Flask, render_template, redirect, session, url_for, abort, \
                   flash, request, current_app, send_from_directory, Markup
 from flask.ext.script import Manager, Shell, Server
@@ -30,7 +31,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
 app.config['DEBUG'] = False
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or 'no key set'
+app.config['SECRET_KEY'] = config.SECRET_KEY
 app.config['SQLALCHEMY_DATABASE_URI'] = \
                         'sqlite:///' + os.path.join(basedir, 'data.sqlite')
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
@@ -63,8 +64,8 @@ BLACKLIST = ['complete', 'request', 'search', 'new', 'settings', 'reset',
              'confirm', 'unconfirmed', 'login', 'signup', 'explore']
 POSTS_PER_PAGE = 25
 
-sg = sendgrid.SendGridClient(os.environ.get('SENDGRID_USERNAME'), 
-                             os.environ.get('SENDGRID_PASSWORD'))
+sg = sendgrid.SendGridClient(config.SENDGRID_USERNAME, 
+                             config.SENDGRID_PASSWORD)
 
 
 
