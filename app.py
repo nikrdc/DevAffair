@@ -481,7 +481,7 @@ def reconfirm():
     token = current_user.generate_confirmation_token()
     message = email_creator(current_user)
     message.set_subject('DevAffair: confirm your account')
-    message.set_message("Dear " + current_user.name + ", \n\n" + "Welcome to " +
+    message.set_text("Dear " + current_user.name + ", \n\n" + "Welcome to " +
         "DevAffair! To confirm your account please click on the following" +
         " link: \n\n" + url_for('confirm', token=token, _external=True) +
         "\n\nSincerely, \n\nThe DevAffair Team")
