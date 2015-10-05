@@ -196,7 +196,7 @@ whooshalchemy.whoosh_index(app, Project)
 # Forms
 
 class LoginForm(Form):
-    email = StringField('Email', 
+    email = StringField('WompEmail', 
             validators=[Required(message='Your email address is required.'),
                         Length(1, 64), 
                         Email(message='This email address is invalid.')])
