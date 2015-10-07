@@ -597,7 +597,6 @@ input[value="Go"] {
 
 .w_name {
     padding: 22px 20px 2px 25px;
-    line-height: 150%;
 }
 
 .p_time, .s_time {
@@ -1243,4 +1242,7 @@ input[type='checkbox']:checked {
         margin: 20px auto 30px auto !important;
     }
 
+    .w_name {
+        line-height: 150%;
+    }
 }

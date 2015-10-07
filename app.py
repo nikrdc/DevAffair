@@ -347,7 +347,7 @@ def finder(key, type, key2=None):
 
 def email_creator(recipient):
     message = sendgrid.Mail()
-    message.set_from('dev@elephantsdontexist.com')
+    message.set_from('hello@devaffair.co')
     message.set_from_name('The DevAffair Team')
     message.add_to(recipient.email)
     message.add_to_name(recipient.name)
