@@ -552,14 +552,14 @@ def settings():
     delete_form = DeleteForm()
     if request.form:
         submit_val = request.form['submit']
-        if submit_val == 'Search':
+        if submit_val == 'Go':
             if search_form.validate_on_submit():
                 return redirect(url_for('search', query=search_form.query.data))
             else:
                 profile_form.name.data = current_user.name
                 profile_form.website.data = current_user.website
                 profile_form.description.data = current_user.description
-        elif submit_val ==  'Update profile':
+        elif submit_val == 'Update profile':
             if profile_form.validate_on_submit():
                 current_user.name = profile_form.name.data
                 current_user.website = profile_form.website.data
@@ -653,7 +653,7 @@ def edit(student_username, project_hashid):
             delete_form = DeleteProjectForm()
             if request.form:
                 submit_val = request.form['submit']
-                if submit_val == 'Search':
+                if submit_val == 'Go':
                     if search_form.validate_on_submit():
                         return redirect(url_for('search', query=search_form.query.data))
                     else:
@@ -700,7 +700,7 @@ def new():
     project_form = ProjectForm()
     if request.form:
         submit_val = request.form['submit']
-        if submit_val == 'Search':
+        if submit_val == 'Go':
             if search_form.validate_on_submit():
                 return redirect(url_for('search', query=search_form.query.data))
         elif submit_val == 'Create':

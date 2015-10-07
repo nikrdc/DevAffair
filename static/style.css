@@ -1232,4 +1232,17 @@ input[type='checkbox']:checked {
         font-weight: 700;
         -webkit-appearance: none;
     }
+
+    .d_email {
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .ind {
+        margin: 20px auto 30px auto !important;
+    }
+
+    .w_name {
+        line-height: 150%;
+    }
 }
