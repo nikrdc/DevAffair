@@ -25,17 +25,21 @@ body {
     font-size: 1.05rem;
 }
 
-.entry_button {
+.entry_button, .email_foot {
     display: inline-block;
     margin: 30px 7px -10px 7px;
     font-size: 0.94rem;
 }
 
-.entry_button a {
+.entry_button a, .email_foot a {
     padding: 4.2px 16px 5.2px 16px;
     color: #d10056;
     text-decoration: none;
     cursor: pointer;
+}
+
+.email_foot a {
+    padding: 0 !important;
 }
 
 .entry_button a:hover {
@@ -47,6 +51,11 @@ body {
         -ms-transition: all 0.2s;
          -o-transition: all 0.2s;
             transition: all 0.2s;
+}
+
+.email_foot a:hover {
+    color: #ff056c;
+    border-bottom: 2px solid #ff056c;
 }
 
 #signup_button a, .internal_form #submit {
@@ -98,7 +107,7 @@ body {
 }
 
 #schools {
-    margin: 40px auto 0 auto;
+    margin: 40px auto 400px auto;
 }
 
 .school_card {
@@ -227,14 +236,6 @@ a.darken:hover img {
 #step3 img {
     width: 260px;
     margin-top: 40px;
-}
-
-#theend {
-    float: left;
-    text-align: center;
-    width: 100%;
-    margin: 30px auto;
-    font-family: 'Lato', sans-serif;
 }
 
 .external_form {
@@ -1043,6 +1044,20 @@ input[type='checkbox']:checked {
 
 .desktop {
     display: none !important;
+}
+
+.wrapper {
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    margin: 0 auto -4em;
+}
+
+.theend, .push {
+    height: 4em;
+    font-family: 'Lato', sans-serif;
+    text-align: center;
+    clear: both;
 }
 
 @media only screen and (max-device-width: 480px) {
