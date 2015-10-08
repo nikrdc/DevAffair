@@ -2,20 +2,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}"/>
+    <link rel="shortcut icon" type="image/png" href="/static/favicon.png">
     <title>{% block title %}{% endblock %}</title>
 
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='octicons.css') }}">
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <link rel="stylesheet" href="/static/octicons.css">
 
     <link href='http://fonts.googleapis.com/css?family=Rokkitt:400,700|Lato:400,700,900' rel='stylesheet' type='text/css'>
 
-    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
-
-    <script src="{{ url_for('static', filename='readmore.min.js') }}" type="text/javascript"></script>
-
+    <script src="/static/readmore.min.js" type="text/javascript"></script>
     <script>
         $(document).ready(function() {
             $('.read_more').readmore({
@@ -25,6 +21,8 @@
             });
         });
     </script>
+    {% block head %}
+    {% endblock %}
 </head>
 <body>
     {% block body %}

@@ -1,6 +1,6 @@
 {% extends "search_authenticated.html" %}
 {% block title %}Search{% endblock %}
-{% block batwing %}
+{% block head %}
     <script>
         $(document).ready(function() {
             var i = 0;
@@ -30,7 +30,8 @@
             });
         });
     </script>
-
+{% endblock %}
+{% block batwing %}
     {% if get_flashed_messages() %}
         <div class="flash">
             {% for message in get_flashed_messages() %}
