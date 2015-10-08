@@ -22,6 +22,7 @@ from datetime import datetime
 from hashids import Hashids
 import flask.ext.whooshalchemy as whooshalchemy
 import sendgrid
+from htmlmin.minify import html_minify
 
 
 
@@ -387,14 +388,16 @@ def index():
             message = Markup("""You haven't added a description yet! 
                              <a href="/settings">Complete your profile.</a>""")
             flash(message)
-        return render_template('dashboard.html', 
-                               search_form=search_form, 
-                               incoming_requests=incoming_requests,
-                               outgoing_requests=outgoing_requests,
-                               active_projects=active_projects,
-                               explore_projects=explore_projects)
+        rendered_html = render_template('dashboard.html', 
+                                        search_form=search_form, 
+                                        incoming_requests=incoming_requests,
+                                        outgoing_requests=outgoing_requests,
+                                        active_projects=active_projects,
+                                        explore_projects=explore_projects)
+        return html_minify(rendered_html)
     schools = School.query.all()
-    return render_template('index.html', schools=schools)
+    rendered_html = render_template('index.html', schools=schools)
+    return html_minify(rendered_html)
 
 
 @app.route('/explore/<int:page>', methods=['GET', 'POST'])
@@ -407,9 +410,10 @@ def explore(page=2):
                        filter_by(school=current_user.school, complete=False).\
                        order_by(Project.time_posted.desc()).\
                        paginate(page, POSTS_PER_PAGE, False)
-    return render_template('explore.html', 
-                           search_form=search_form,
-                           explore_projects=explore_projects)
+    rendered_html = render_template('explore.html', 
+                                    search_form=search_form,
+                                    explore_projects=explore_projects)
+    return html_minify(rendered_html)
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -445,7 +449,8 @@ def signup():
         status, msg = sg.send(message)
         flash('A confirmation email has been sent to you by email.')
         return redirect(url_for('index'))
-    return render_template('signup.html', form=form)
+    rendered_html = render_template('signup.html', form=form)
+    return html_minify(rendered_html)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -460,7 +465,8 @@ def login():
             login_user(student, form.remember_me.data)
             return redirect(request.args.get('next') or url_for('index'))
         flash('Invalid username or password.')
-    return render_template('login.html', form=form)
+    rendered_html = render_template('login.html', form=form)
+    return html_minify(rendered_html)
 
 
 @app.route('/unconfirmed')
@@ -469,7 +475,8 @@ def unconfirmed():
     if current_user.confirmed:
         flash('You have already confirmed your account!')
         return redirect(url_for('index'))
-    return render_template('unconfirmed.html')
+    rendered_html = render_template('unconfirmed.html')
+    return html_minify(rendered_html)
 
 
 @app.route('/confirm')
@@ -521,7 +528,8 @@ def request_reset():
         flash('An email with instructions to reset your password has been \
               sent to you.')
         return redirect(url_for('index'))
-    return render_template('request_reset.html', form=form)
+    rendered_html = render_template('request_reset.html', form=form)
+    return html_minify(rendered_html)
 
 
 @app.route('/reset/<token>', methods=['GET', 'POST'])
@@ -533,7 +541,8 @@ def reset(token):
             flash('Password successfully updated.')
             return redirect(url_for('login'))
         flash('The password reset link is invalid or has expired.')
-    return render_template('reset.html', form=form)
+    rendered_html = render_template('reset.html', form=form)
+    return html_minify(rendered_html)
 
 
 @app.route('/logout')
@@ -595,11 +604,12 @@ def settings():
                 profile_form.name.data = current_user.name
                 profile_form.website.data = current_user.website
                 profile_form.description.data = current_user.description   
-    return render_template('settings.html', 
-                           profile_form=profile_form, 
-                           password_form=password_form, 
-                           delete_form=delete_form,
-                           search_form=search_form)            
+    rendered_html = render_template('settings.html', 
+                                    profile_form=profile_form, 
+                                    password_form=password_form, 
+                                    delete_form=delete_form,
+                                    search_form=search_form)
+    return html_minify(rendered_html)        
 
 
 
@@ -614,17 +624,20 @@ def school_student(shortname_username):
                                                       complete=False)
         complete_projects = Project.query.filter_by(student=student, 
                                                     complete=True)
-        return render_template('student.html', student=student, 
-                               search_form=search_form,
-                               incomplete_projects=incomplete_projects,
-                               complete_projects=complete_projects)
+        rendered_html = render_template('student.html', student=student, 
+                                        search_form=search_form,
+                                        incomplete_projects=incomplete_projects,
+                                        complete_projects=complete_projects)
+        return html_minify(rendered_html) 
     school = finder(shortname_username, 'school')
     if len(school.projects.all()) < 3:
         projects = school.projects.all()
     else:
         projects = sample(school.projects.filter_by(complete=False).all(), 3)
-    return render_template('school.html', school=school, 
-                           projects=projects)
+    rendered_html = render_template('school.html', school=school, 
+                                    projects=projects)
+    return html_minify(rendered_html)
+
 
 
 @app.route('/<student_username>/<project_hashid>', methods=['GET', 'POST'])
@@ -636,8 +649,9 @@ def project(student_username, project_hashid):
         search_form = SearchForm()
         if search_form.validate_on_submit():
             return redirect(url_for('search', query=search_form.query.data))
-        return render_template('project.html', project=project,
-                               search_form=search_form)
+        rendered_html = render_template('project.html', project=project,
+                                        search_form=search_form)
+        return html_minify(rendered_html)
     abort(404)
 
 
@@ -680,11 +694,12 @@ def edit(student_username, project_hashid):
                         project_form.name.data = project.name
                         project_form.website.data = project.website
                         project_form.description.data = project.description
-            return render_template('edit.html', 
-                                   project=project,
-                                   project_form=project_form, 
-                                   search_form=search_form,
-                                   delete_form=delete_form)
+            rendered_html = render_template('edit.html', 
+                                            project=project,
+                                            project_form=project_form, 
+                                            search_form=search_form,
+                                            delete_form=delete_form)
+            return html_minify(rendered_html)
         return redirect(url_for('project', 
                                 student_username=student_username,
                                 project_hashid=project_hashid))
@@ -720,8 +735,9 @@ def new():
                 return redirect(url_for('project', 
                                 student_username=current_user.username,
                                 project_hashid=project.hashid))
-    return render_template('new.html', project_form=project_form, 
-                           search_form=search_form)
+    rendered_html = render_template('new.html', project_form=project_form, 
+                                    search_form=search_form)
+    return html_minify(rendered_html)
 
 
 @app.route('/search/<query>', methods=['GET', 'POST'])
@@ -734,10 +750,12 @@ def search(query):
                       filter_by(confirmed=True).all()
     project_results = Project.query.whoosh_search(query, MAX_SEARCH_RESULTS).\
                       filter_by(complete=False).all()
-    return render_template('search.html', query=query, 
-                           student_results=student_results,
-                           project_results=project_results,
-                           search_form = SearchForm())
+    rendered_html = render_template('search.html', query=query, 
+                                    student_results=student_results,
+                                    project_results=project_results,
+                                    search_form = SearchForm())
+    return html_minify(rendered_html)
+
 
 @app.route('/search', methods=['GET', 'POST'])
 @login_required
@@ -745,10 +763,12 @@ def empty_search():
     search_form = SearchForm()
     if search_form.validate_on_submit():
         return redirect(url_for('search', query=search_form.query.data))
-    return render_template('search.html', query=None, 
-                           student_results=None,
-                           project_results=None,
-                           search_form = SearchForm())
+    rendered_html = render_template('search.html', query=None, 
+                                    student_results=None,
+                                    project_results=None,
+                                    search_form = SearchForm())
+    return html_minify(rendered_html)
+
 
 @app.route('/request/<student_username>/<project_hashid>/<type>', 
            methods=['GET'])
