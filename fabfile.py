@@ -17,10 +17,15 @@ def migrate():
     with prefix(". /usr/local/bin/virtualenvwrapper.sh; workon devaffair"):
         run('python app.py db upgrade')
 
+def minify_css():
+    with prefix(". /usr/local/bin/virtualenvwrapper.sh; workon devaffair"):
+        run('python minify_css.py')
+
 def deploy():
     with cd('~/devaffair'):
         run('git pull origin master')
         dependencies()
         migrate()
+        minify_css()
 
     run('touch /tmp/reload_devaffair')
